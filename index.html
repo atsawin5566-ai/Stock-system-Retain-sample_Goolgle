@@ -1005,19 +1005,18 @@ if (
     currentUser.role === "Admin"
 ) {
 
-    actionButton = `
+   actionButton = `
+    <button
+        onclick="editItem('${item.lot}')">
+        แก้ไข
+    </button>
 
-        <button
-            onclick="editItem(${index})">
-            แก้ไข
-        </button>
+    <button
+        onclick="deleteItem('${item.lot}')">
+        ลบ
+    </button>
+`;
 
-        <button
-            onclick="deleteItem(${index})">
-            ลบ
-        </button>
-
-    `;
 }
 
 body.innerHTML += `
@@ -1070,11 +1069,15 @@ body.innerHTML += `
    ).innerText = outOfStock;  
 
 }
-function editItem(index) {
+function editItem(lot) {
 
     const data = getStock();
 
-    const item = data[index];
+    const item = data.find(
+        x => x.lot === lot
+    );
+
+    if (!item) return;
 
     document.getElementById("pn").value =
         item.pn;
@@ -1090,11 +1093,13 @@ function editItem(index) {
 
     document.getElementById("location").value =
         item.location;
-      
+
     document.getElementById("materialType").value =
         item.materialType || "";
 
-    editIndex = index;
+    editIndex = data.findIndex(
+        x => x.lot === lot
+    );
 
     document.getElementById("saveBtn")
         .style.display = "none";
@@ -1102,6 +1107,7 @@ function editItem(index) {
     document.getElementById("updateBtn")
         .style.display = "inline-block";
 }
+      
 function updateItem() {
 
     const data = getStock();
@@ -1175,7 +1181,7 @@ document.getElementById("updateBtn")
 
 alert("✅ อัปเดตสำเร็จ");
 }
-function deleteItem(index){
+function deleteItem(lot){
 
     if(
         !confirm(
@@ -1185,9 +1191,11 @@ function deleteItem(index){
         return;
     }
 
-    const data = getStock();
+    let data = getStock();
 
-    data.splice(index,1);
+    data = data.filter(
+        item => item.lot !== lot
+    );
 
     localStorage.setItem(
         "stockData",
@@ -1196,35 +1204,7 @@ function deleteItem(index){
 
     displayData();
 }
-      
-function searchItem(){
-
-    const keyword =
-        document.getElementById("search")
-        .value
-        .trim()
-        .toLowerCase();
-
-    const result =
-        getStock().filter(item =>
-            item.lot &&
-            item.lot.toLowerCase()
-                .includes(keyword)
-        );
-
-    if(result.length === 0){
-
-        alert(
-            "❌ ไม่พบ Lot : " + keyword
-        );
-
-        return;
-    }
-
-    displayData(result);
-
-}
-      
+  
 function getCurrentUser() {
 
     return JSON.parse(
