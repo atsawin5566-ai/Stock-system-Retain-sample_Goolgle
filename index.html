@@ -1812,7 +1812,7 @@ latestHistory.forEach((item,index) => {
 
     <td>
         <button
-            onclick="deleteHistory(${index})">
+            onclick="deleteHistory('${item.date}','${item.lot}')">
             ลบ
         </button>
     </td>
@@ -1821,14 +1821,7 @@ latestHistory.forEach((item,index) => {
 });
 
 }
-function deleteHistory(index){
-
-    let history =
-        JSON.parse(
-            localStorage.getItem(
-                "borrowHistory"
-            )
-        ) || [];
+function deleteHistory(date, lot){
 
     const currentUser =
         getCurrentUser();
@@ -1851,7 +1844,20 @@ function deleteHistory(index){
         return;
     }
 
-    history.splice(index,1);
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
+
+    history = history.filter(
+        item =>
+            !(
+                item.date === date &&
+                item.lot === lot
+            )
+    );
 
     localStorage.setItem(
         "borrowHistory",
@@ -1859,7 +1865,6 @@ function deleteHistory(index){
     );
 
     displayHistory();
-
 }
 function addBorrowLot(){
 
