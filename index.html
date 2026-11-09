@@ -1204,7 +1204,40 @@ function deleteItem(lot){
 
     displayData();
 }
-  
+function searchItem(){
+
+    const keyword =
+        document.getElementById("search")
+        .value
+        .trim()
+        .toLowerCase();
+
+    if(keyword === ""){
+
+        displayData();
+
+        return;
+    }
+
+    const result =
+        getStock().filter(item =>
+            item.lot &&
+            item.lot.toLowerCase()
+                .includes(keyword)
+        );
+
+    if(result.length === 0){
+
+        alert(
+            "❌ ไม่พบ Lot : " + keyword
+        );
+
+        return;
+    }
+
+    displayData(result);
+}
+      
 function getCurrentUser() {
 
     return JSON.parse(
