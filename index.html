@@ -733,6 +733,48 @@ async function saveToCloud(data){
 
 }
 
+async function saveHistoryToCloud(data){
+
+    try{
+
+        await fetch(API_URL,{
+            method:"POST",
+            mode:"no-cors",
+            body:JSON.stringify({
+                sheet:"History",
+                ...data
+            })
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+async function saveIssueToCloud(data){
+
+    try{
+
+        await fetch(API_URL,{
+            method:"POST",
+            mode:"no-cors",
+            body:JSON.stringify({
+                sheet:"IssueHistory",
+                ...data
+            })
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}      
+
 /* USER */
 
 const users = [
@@ -1340,7 +1382,7 @@ function borrowItem() {
                 x => x.lot === row.lot
             );
 
-  history.push({
+ const historyRecord = {
 
     transactionId:
         "BOR-" + Date.now(),
@@ -1362,9 +1404,14 @@ function borrowItem() {
 
     user: user
 
-});
+};
 
-    });
+history.push(historyRecord);
+
+saveHistoryToCloud(
+    historyRecord
+);
+});
 
     localStorage.setItem(
     "borrowHistory",
@@ -1381,7 +1428,7 @@ let documents =
 const docNo =
     "BOR-" + Date.now();
 
-documents.push({
+const issueRecord = {
 
     docNo: docNo,
 
@@ -1393,11 +1440,17 @@ documents.push({
     items:
         [...borrowList]
 
-});
+};
+
+documents.push(issueRecord);
 
 localStorage.setItem(
     "borrowDocuments",
     JSON.stringify(documents)
+);
+
+saveIssueToCloud(
+    issueRecord
 );
 
 // สร้างข้อมูลใบเบิก
