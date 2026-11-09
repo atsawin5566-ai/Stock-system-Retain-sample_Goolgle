@@ -710,6 +710,29 @@ class="hidden"
       
 <script>
 
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyDqktbn57IZA9K2IVTdEdm0ahXAjvRcMjIG8I6Sh5hQHhFuzF6IPujj7KwngfBVU0T/exec";
+
+async function saveToCloud(data){
+
+    try{
+
+        await fetch(API_URL,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(data)
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}      
+
 /* USER */
 
 const users = [
@@ -878,20 +901,25 @@ function saveItem() {
         return;
     }
 
-    data.push({
-        pn,
-        lot,
-        date,
-        qty,
-        location,
-        materialType
+const newItem = {
+    pn,
+    lot,
+    date,
+    qty,
+    location,
+    materialType
+};
+
+data.push(newItem);
     });
 
    localStorage.setItem(
     "stockData",
     JSON.stringify(data)
 );
+saveToCloud(newItem);
 
+      
 displayData();
 
 clearForm();
