@@ -773,8 +773,96 @@ async function saveIssueToCloud(data){
         console.error(error);
 
     }
+      
+async function loadStockFromCloud(){
+
+    const response =
+        await fetch(
+            API_URL +
+            "?sheet=Stock"
+        );
+
+    const values =
+        await response.json();
+
+    const stockData =
+        values.slice(1).map(
+            row => ({
+
+                pn: row[0],
+
+                lot: row[1],
+
+                date: row[2],
+
+                qty: Number(row[3]),
+
+                location: row[4],
+
+                materialType:
+                    row[5] || ""
+
+            })
+        );
+
+    displayData(stockData);
+}
+
+async function loadHistoryFromCloud(){
+
+    const response =
+        await fetch(
+            API_URL +
+            "?sheet=History"
+        );
+
+    const values =
+        await response.json();
+
+    const history =
+        values.slice(1).map(
+            row => ({
+
+                date: row[0],
+
+                type: row[1],
+
+                pn: row[2],
+
+                lot: row[3],
+
+                qty: row[4],
+
+                user: row[5]
+
+            })
+        );
+
+    displayHistory(history);
+
+}      
+async function loadIssueHistoryFromCloud(){
+
+    const response =
+        await fetch(
+            API_URL +
+            "?sheet=IssueHistory"
+        );
+
+    const values =
+        await response.json();
+
+    displayBorrowDocuments(
+        values.slice(1)
+    );
 
 }
+
+      
+
+
+      
+
 
 /* USER */
 
