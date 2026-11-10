@@ -806,8 +806,8 @@ async function loadStockFromCloud(){
         );
 
     displayData(stockData);
-}
 
+}
 async function loadHistoryFromCloud(){
 
     const response =
@@ -840,7 +840,7 @@ async function loadHistoryFromCloud(){
 
     displayHistory(history);
 
-}      
+}
 async function loadIssueHistoryFromCloud(){
 
     const response =
@@ -857,7 +857,6 @@ async function loadIssueHistoryFromCloud(){
     );
 
 }
-
       
 
 
@@ -949,6 +948,14 @@ function logout(){
 }
 
 function showMain(){
+
+    loadStockFromCloud();
+
+    loadHistoryFromCloud();
+
+    loadIssueHistoryFromCloud();
+
+}
 
     const user =
         JSON.parse(
