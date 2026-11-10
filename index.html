@@ -1593,33 +1593,32 @@ function returnItem() {
 
         }
 
-        history.push({
+const historyRecord = {
 
-            transactionId:
-                "RET-" + Date.now(),
+    transactionId:
+        "RET-" + Date.now(),
 
-            type: "RETURN",
+    type:"RETURN",
 
-            date:
-                new Date()
-                    .toLocaleString(),
+    date:
+        new Date().toLocaleString(),
 
-            pn:
-                item ? item.pn : "",
+    pn:item.pn,
 
-            lot:
-                row.lot,
+    lot:row.lot,
 
-            location:
-                row.location || "",
+    qty:row.qty,
 
-            qty:
-                row.qty,
+    user:user
 
-            user:
-                user
+};
 
-        });
+history.push(historyRecord);
+
+saveHistoryToCloud(
+    historyRecord
+);
+
 
         borrowItem.qty =
             Number(borrowItem.qty) -
