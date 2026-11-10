@@ -1957,17 +1957,14 @@ function addBorrowLot(){
         return;
     }
 
-    borrowList.push({
+borrowList.push({
 
-      pn: stockItem.pn,
-      lot: lot,
+    pn: stockItem.pn,
+    lot: stockItem.lot,
+    location: stockItem.location || "",
+    qty: qty
 
-      location:
-      stockItem.location || "",
-
-        qty: qty
-
-    });
+});
 
     renderBorrowList();
 
