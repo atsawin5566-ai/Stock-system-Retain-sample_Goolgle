@@ -771,6 +771,8 @@ async function loadIssueHistoryFromCloud(){
       
 async function saveToCloud(data){
 
+    console.log("Sending:", data);
+
     return fetch(API_URL,{
 
         method:"POST",
