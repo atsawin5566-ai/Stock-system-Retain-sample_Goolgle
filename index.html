@@ -736,22 +736,21 @@ async function loadStockFromCloud(){
 
 async function saveToCloud(data){
 
-    try{
+    return fetch(API_URL,{
 
-        await fetch(API_URL,{
-            method:"POST",
-            mode:"no-cors",
-            body:JSON.stringify({
-                sheet:"Stock",
-                ...data
-            })
-        });
+        method:"POST",
 
-    }catch(error){
+        mode:"no-cors",
 
-        console.error(error);
+        body:JSON.stringify({
 
-    }
+            sheet:"Stock",
+
+            ...data
+
+        })
+
+    });
 
 }
 
@@ -933,7 +932,7 @@ function getStock(){
 
 }
 
-function saveItem() {
+async function saveItem() {
 
     const pn = document.getElementById("pn").value.trim();
     const lot = document.getElementById("lot").value.trim();
@@ -943,51 +942,60 @@ function saveItem() {
     const materialType = document.getElementById("materialType").value.trim();
 
     if (!pn || !lot || !date || !qty || !location || !materialType) {
+
         alert("กรุณากรอกข้อมูลให้ครบ");
+
         return;
     }
 
     let data = getStock();
 
     const duplicateLot = data.find(item =>
-        item.lot &&
-        item.lot.trim().toLowerCase() ===
+        (item["Lot No."] || "")
+            .trim()
+            .toLowerCase() ===
         lot.trim().toLowerCase()
     );
 
     if (duplicateLot) {
+
         alert(
             "❌ Lot No นี้มีอยู่ในระบบแล้ว\n\n" +
-            "PN : " + duplicateLot.pn +
-            "\nLocation : " + duplicateLot.location
+            "PN : " + duplicateLot["Part No."] +
+            "\nLocation : " + duplicateLot["Location"]
         );
+
         return;
     }
 
-const newItem = {
-    pn,
-    lot,
-    date,
-    qty,
-    location,
-    materialType
-};
+    const newItem = {
+        pn: pn,
+        lot: lot,
+        date: date,
+        qty: qty,
+        location: location,
+        materialType: materialType
+    };
 
-data.push(newItem);
+    try {
 
+        await saveToCloud(newItem);
 
-   localStorage.setItem(
-    "stockData",
-    JSON.stringify(data)
-);
-saveToCloud(newItem);
+        await loadStockFromCloud();
 
-      
-displayData();
+        clearForm();
 
-clearForm();
+        alert("✅ บันทึกสำเร็จ");
 
-alert("✅ บันทึกสำเร็จ");
+    }
+    catch(error) {
+
+        console.error(error);
+
+        alert("❌ บันทึกไม่สำเร็จ");
+
+    }
+
 }
 
 function displayData(dataList = null){
