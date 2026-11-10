@@ -452,31 +452,36 @@ STATUS
 
         <div class="form-grid">
 
-            <input type="text" placeholder="PN">
+<input id="pn" type="text" placeholder="PN">
 
-            <input type="text" placeholder="Lot No">
+<input id="lot" type="text" placeholder="Lot No">
 
-            <input type="date">
+<input id="date" type="date">
 
-            <input type="number" placeholder="Qty">
+<input id="qty" type="number" placeholder="Qty">
 
-            <input type="text" placeholder="Location">
+<input id="location" type="text" placeholder="Location">
 
-            <select>
-                <option>Material Type</option>
-                <option>Copper</option>
-                <option>Shell</option>
-            </select>
+<select id="materialType">
+    <option value="">Material Type</option>
+    <option value="Copper">Copper</option>
+    <option value="Shell">Shell</option>
+</select>
 
-            <button class="btn btn-primary">
-                บันทึก
-            </button>
+<button
+id="saveBtn"
+class="btn btn-primary"
+onclick="addItem()">
+
+บันทึก
+
+</button>
 
         </div>
 
     </div>
 
-    <!-- Table -->
+     <!-- Stock Table -->
 
     <div class="card">
 
@@ -486,8 +491,17 @@ STATUS
 
         <div class="table-container">
 
-            <table>
+            
+<input
+id="search"
+type="text"
+placeholder="ค้นหา PN หรือ Lot"
+onkeyup="searchStock()">
 
+            </div>
+            
+            <table>
+            
                 <thead>
                     <tr>
                         <th>No.</th>
@@ -502,7 +516,7 @@ STATUS
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="stockTable">
 
                     <tr>
                         <td>1</td>
@@ -543,5 +557,234 @@ STATUS
 
 </div>
 
+
+
+    
+<script>
+
+let stockData = [];
+let editIndex = -1;
+
+/* =========================
+ADD ITEM
+========================= */
+
+function addItem(){
+
+    const pn = document.getElementById("pn").value.trim();
+    const lot = document.getElementById("lot").value.trim();
+    const date = document.getElementById("date").value;
+    const qty = document.getElementById("qty").value;
+    const location = document.getElementById("location").value.trim();
+    const materialType = document.getElementById("materialType").value;
+
+    if(!pn || !lot || !qty){
+
+        alert("กรุณากรอกข้อมูลให้ครบ");
+        return;
+
+    }
+
+    const item = {
+
+        pn,
+        lot,
+        date,
+        qty,
+        location,
+        materialType,
+        status: qty > 0 ? "In Stock" : "Out Of Stock"
+
+    };
+
+    if(editIndex === -1){
+
+        stockData.push(item);
+
+    }else{
+
+        stockData[editIndex] = item;
+
+        editIndex = -1;
+
+        document.getElementById("saveBtn").innerText =
+        "บันทึก";
+
+    }
+
+    displayData();
+
+    clearForm();
+
+}
+
+/* =========================
+DISPLAY
+========================= */
+
+function displayData(){
+
+    const tbody =
+    document.getElementById("stockTable");
+
+    tbody.innerHTML = "";
+
+    stockData.forEach((item,index)=>{
+
+        tbody.innerHTML += `
+
+        <tr>
+
+            <td>${index+1}</td>
+
+            <td>${item.pn}</td>
+
+            <td>${item.lot}</td>
+
+            <td>${item.date}</td>
+
+            <td>${item.qty}</td>
+
+            <td>${item.location}</td>
+
+            <td>${item.materialType}</td>
+
+            <td>
+
+                ${
+                    Number(item.qty)>0
+                    ?
+                    '<span class="status-ok">In Stock</span>'
+                    :
+                    '<span class="status-danger">Out Of Stock</span>'
+                }
+
+            </td>
+
+            <td>
+
+                <button
+                class="btn btn-primary"
+                onclick="editItem(${index})">
+
+                Edit
+
+                </button>
+
+                <button
+                class="btn btn-danger"
+                onclick="deleteItem(${index})">
+
+                Delete
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
+/* =========================
+EDIT
+========================= */
+
+function editItem(index){
+
+    const item =
+    stockData[index];
+
+    document.getElementById("pn").value =
+    item.pn;
+
+    document.getElementById("lot").value =
+    item.lot;
+
+    document.getElementById("date").value =
+    item.date;
+
+    document.getElementById("qty").value =
+    item.qty;
+
+    document.getElementById("location").value =
+    item.location;
+
+    document.getElementById("materialType").value =
+    item.materialType;
+
+    editIndex = index;
+
+    document.getElementById("saveBtn").innerText =
+    "Update";
+
+}
+
+/* =========================
+DELETE
+========================= */
+
+function deleteItem(index){
+
+    if(!confirm("ยืนยันการลบข้อมูล ?")){
+        return;
+    }
+
+    stockData.splice(index,1);
+
+    displayData();
+
+}
+
+/* =========================
+CLEAR FORM
+========================= */
+
+function clearForm(){
+
+    document.getElementById("pn").value = "";
+    document.getElementById("lot").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("qty").value = "";
+    document.getElementById("location").value = "";
+    document.getElementById("materialType").value = "";
+
+}
+
+/* =========================
+SEARCH
+========================= */
+
+function searchStock(){
+
+    const keyword =
+    document.getElementById("search").value
+    .toLowerCase();
+
+    const rows =
+    document.querySelectorAll("#stockTable tr");
+
+    rows.forEach(row=>{
+
+        const text =
+        row.innerText.toLowerCase();
+
+        row.style.display =
+        text.includes(keyword)
+        ? ""
+        : "none";
+
+    });
+
+}
+
+</script>
+
+
+
+    
 </body>
 </html>
