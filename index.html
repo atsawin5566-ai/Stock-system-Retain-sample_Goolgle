@@ -169,7 +169,7 @@ td{
 }
 
 th{
-    background: #5b43ea;
+    background:#5b4df5;
     color:white;
 }
 
@@ -337,7 +337,7 @@ class="hidden"
 </div>
 
 <div class="dashboard">
- </div>     
+      
 
     <div class="box normal">
 
@@ -346,7 +346,9 @@ class="hidden"
         <h1 id="normalCount">
             0
         </h1>
-     
+
+          
+          
     </div>
 
     <div class="box warning">
@@ -631,9 +633,9 @@ class="hidden"
         ค้นหา
     </button>
 
-   <button onclick="loadStockFromCloud()">
-    แสดงทั้งหมด
-</button>
+    <button onclick="displayData()">
+        แสดงทั้งหมด
+    </button>
 
 </div>
 
@@ -703,112 +705,32 @@ class="hidden"
 
     </div>
 
-</div>      
+</div>
+
+      
 <script>
 
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzs8Ik1eW_pKnjjYLcUNA_N47fO6CaNBs0kTaOykLM358v4hfbN33e9ythckwFg0522/exec";
 
-
-
-
-      
-const API_URL = "https://script.google.com/macros/s/AKfycbzs8Ik1eW_pKnjjYLcUNA_N47fO6CaNBs0kTaOykLM358v4hfbN33e9ythckwFg0522/exec";
-
-
-let stockData = [];
-let issueHistoryData = [];
-let historyData = [];
-
-async function loadStockFromCloud(){
-
-    try{
-
-        const response =
-            await fetch(
-                API_URL + "?sheet=Stock"
-            );
-
-        stockData =
-            await response.json();
-
-        displayData(stockData);
-
-    }
-    catch(error){
-
-        console.error(error);
-
-        alert(
-            "โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ"
-        );
-
-    }
-
-}
-
-async function loadIssueHistoryFromCloud(){
-
-    try{
-
-        const response =
-            await fetch(
-                API_URL + "?sheet=IssueHistory"
-            );
-
-        issueHistoryData =
-            await response.json();
-
-        displayBorrowDocuments();
-
-    }
-    catch(error){
-
-        console.error(error);
-
-    }
-
-}      
-async function loadHistoryFromCloud(){
-
-    try{
-
-        const response =
-            await fetch(
-                API_URL + "?sheet=History"
-            );
-
-        historyData =
-            await response.json();
-
-        displayHistory();
-
-    }
-    catch(error){
-
-        console.error(error);
-
-    }
-
-}
-      
 async function saveToCloud(data){
 
-    console.log("Sending:", data);
+    try{
 
-    return fetch(API_URL,{
+        await fetch(API_URL,{
+            method:"POST",
+            mode:"no-cors",
+            body:JSON.stringify({
+                sheet:"Stock",
+                ...data
+            })
+        });
 
-        method:"POST",
+    }catch(error){
 
-        mode:"no-cors",
+        console.error(error);
 
-        body:JSON.stringify({
-
-            sheet:"Stock",
-
-            ...data
-
-        })
-
-    });
+    }
 
 }
 
@@ -973,24 +895,25 @@ function showMain(){
         `${user.username}
          (${user.role})`;
 
-loadStockFromCloud();
-loadHistoryFromCloud();
-loadIssueHistoryFromCloud();
+    displayData();
 
 }
 
-
-      
 /* STOCK */
-
 
 function getStock(){
 
-    return stockData;
+    return JSON.parse(
+
+        localStorage.getItem(
+            "stockData"
+        )
+
+    ) || [];
 
 }
 
-async function saveItem() {
+function saveItem() {
 
     const pn = document.getElementById("pn").value.trim();
     const lot = document.getElementById("lot").value.trim();
@@ -1000,191 +923,225 @@ async function saveItem() {
     const materialType = document.getElementById("materialType").value.trim();
 
     if (!pn || !lot || !date || !qty || !location || !materialType) {
-
         alert("กรุณากรอกข้อมูลให้ครบ");
         return;
-
     }
 
-    const data = getStock();
+    let data = getStock();
 
     const duplicateLot = data.find(item =>
-        (item["Lot No."] || "")
-        .trim()
-        .toLowerCase() ===
+        item.lot &&
+        item.lot.trim().toLowerCase() ===
         lot.trim().toLowerCase()
     );
 
     if (duplicateLot) {
-
         alert(
             "❌ Lot No นี้มีอยู่ในระบบแล้ว\n\n" +
-            "PN : " + duplicateLot["Part No."] +
-            "\nLocation : " + duplicateLot["Location"]
+            "PN : " + duplicateLot.pn +
+            "\nLocation : " + duplicateLot.location
         );
-
         return;
     }
 
-    const newItem = {
-        pn,
-        lot,
-        date,
-        qty,
-        location,
-        materialType
-    };
+const newItem = {
+    pn,
+    lot,
+    date,
+    qty,
+    location,
+    materialType
+};
 
-    try {
+data.push(newItem);
 
-        console.log("Saving:", newItem);
 
-await saveToCloud(newItem);
+   localStorage.setItem(
+    "stockData",
+    JSON.stringify(data)
+);
+saveToCloud(newItem);
 
-await loadStockFromCloud();
+      
+displayData();
 
 clearForm();
 
 alert("✅ บันทึกสำเร็จ");
-
-    }
-    catch(error) {
-
-        console.error(error);
-
-        alert("❌ บันทึกไม่สำเร็จ");
-
-    }
-
 }
-function displayData(dataList = null){
 
-    const data = (dataList || [])
+function displayData(dataList=null){
+
+    const data =
+        (dataList || getStock())
         .slice()
         .reverse();
 
-    const body = document.getElementById("tableBody");
+    const body =
+        document.getElementById(
+            "tableBody"
+        );
 
     body.innerHTML = "";
 
-    let normal = 0;
-    let warning = 0;
-    let expired = 0;
+    let normal=0;
+    let warning=0;
+    let expired=0;
     let outOfStock = 0;
 
     data.forEach((item, index) => {
 
-        const pn = item["Part No."] || "";
-        const lot = item["Lot No."] || "";
-        const date = item["Date"] || "";
-        const qty = Number(item["Qty."] || 0);
-        const location = item["Location"] || "";
-        const materialType = item["Material Type"] || "";
-
         let age = 0;
 
-        if(date){
+        if(item.date){
+
             age = Math.floor(
-                (new Date() - new Date(date))
-                / (1000 * 60 * 60 * 24)
+
+                (new Date()
+                -
+                new Date(item.date))
+
+                /
+
+                (1000*60*60*24)
+
             );
+
         }
 
         let status = "✅";
 
-        if(qty <= 0){
+if (Number(item.qty) <= 0) {
 
-            status = "❌ Out of Stock";
-            outOfStock++;
+    status = "❌ Out of Stock";
+      
+    outOfStock++;  
 
-        } else if(age >= 365){
+}
+else if (age >= 365) {
 
-            status = "❌ Expired";
-            expired++;
+    status = "❌ Expired";
 
-        } else if(age >= 335){
+    expired++;
 
-            status = "⚠️ Near Expiry";
-            warning++;
+}
+else if (age >= 335) {
 
-        } else {
+    status = "⚠️ Near Expiry";
 
-            normal++;
+    warning++;
 
-        }
+}
+else {
 
-        let actionButton = "";
+    normal++;
 
-        const currentUser = getCurrentUser();
+}
 
-        if(currentUser && currentUser.role === "Admin"){
+       let actionButton = "";
 
-            actionButton = `
-                <button onclick="editItem('${lot}')">
-                    แก้ไข
-                </button>
+const currentUser =
+    getCurrentUser();
 
-                <button onclick="deleteItem('${lot}')">
-                    ลบ
-                </button>
-            `;
-        }
+if (
+    currentUser &&
+    currentUser.role === "Admin"
+) {
 
-        body.innerHTML += `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${pn}</td>
-            <td>${lot}</td>
-            <td>${date}</td>
-            <td>${qty}</td>
-            <td>${location}</td>
-            <td>${materialType}</td>
-            <td>${status}</td>
-            <td>${actionButton}</td>
-        </tr>
-        `;
+   actionButton = `
+    <button
+        onclick="editItem('${item.lot}')">
+        แก้ไข
+    </button>
+
+    <button
+        onclick="deleteItem('${item.lot}')">
+        ลบ
+    </button>
+`;
+
+}
+
+body.innerHTML += `
+
+<tr>
+ <td>${index + 1}</td>
+    <td>${item.pn}</td>
+
+    <td>${item.lot}</td>
+
+    <td>${item.date}</td>
+
+    <td>${item.qty}</td>
+
+    <td>${item.location}</td>
+
+    <td>${item.materialType || ""}</td>
+
+    <td>${status}</td>
+
+    <td>${actionButton}</td>
+    
+
+</tr>
+
+`;
+
     });
 
-    document.getElementById("normalCount").innerText = normal;
+    document
+    .getElementById(
+        "normalCount"
+    )
+    .innerText = normal;
 
-    document.getElementById("warningCount").innerText = warning;
+    document
+    .getElementById(
+        "warningCount"
+    )
+    .innerText = warning;
 
-    document.getElementById("expiredCount").innerText = expired;
+    document
+    .getElementById(
+        "expiredCount"
+    )
+    .innerText = expired;
 
-    document.getElementById("outOfStockCount").innerText = outOfStock;
+    document.getElementById(
+    "outOfStockCount"
+   ).innerText = outOfStock;  
+
 }
-function editItem(lot){
+function editItem(lot) {
 
     const data = getStock();
 
     const item = data.find(
-        x => x["Lot No."] === lot
+        x => x.lot === lot
     );
 
-    if(!item){
-        return;
-    }
+    if (!item) return;
 
     document.getElementById("pn").value =
-        item["Part No."] || "";
+        item.pn;
 
     document.getElementById("lot").value =
-        item["Lot No."] || "";
+        item.lot;
 
     document.getElementById("storeDate").value =
-        item["Date"] || "";
+        item.date;
 
     document.getElementById("qty").value =
-        item["Qty."] || "";
+        item.qty;
 
     document.getElementById("location").value =
-        item["Location"] || "";
+        item.location;
 
     document.getElementById("materialType").value =
-        item["Material Type"] || "";
+        item.materialType || "";
 
     editIndex = data.findIndex(
-        x => x["Lot No."] === lot
+        x => x.lot === lot
     );
 
     document.getElementById("saveBtn")
@@ -1194,19 +1151,101 @@ function editItem(lot){
         .style.display = "inline-block";
 }
       
-function updateItem(){
+function updateItem() {
 
-    alert(
-        "ระบบแก้ไขข้อมูลบน Google Sheet ยังไม่ได้เปิดใช้งาน"
+    const data = getStock();
+
+    const lot =
+        document.getElementById("lot")
+        .value
+        .trim();
+
+    const duplicateLot =
+        data.find(
+            (item,index)=>
+
+                item.lot &&
+                item.lot.trim().toLowerCase()
+                ===
+                lot.toLowerCase()
+
+                &&
+
+                index !== editIndex
+        );
+
+    if(duplicateLot){
+
+        alert(
+            "❌ Lot นี้มีอยู่แล้ว"
+        );
+
+        return;
+    }
+
+    data[editIndex] = {
+
+        pn:
+        document.getElementById("pn").value,
+
+        lot:
+        document.getElementById("lot").value,
+
+        date:
+        document.getElementById("storeDate").value,
+
+        qty:
+        document.getElementById("qty").value,
+
+        location:
+        document.getElementById("location").value,
+
+        materialType:
+        document.getElementById("materialType").value
+
+    };
+
+    localStorage.setItem(
+        "stockData",
+        JSON.stringify(data)
     );
 
+    editIndex = -1;
+
+    displayData();
+
+clearForm();
+
+document.getElementById("saveBtn")
+    .style.display = "inline-block";
+
+document.getElementById("updateBtn")
+    .style.display = "none";
+
+alert("✅ อัปเดตสำเร็จ");
 }
-function deleteItem(){
+function deleteItem(lot){
 
-    alert(
-        "ระบบลบข้อมูลบน Google Sheet ยังไม่ได้เปิดใช้งาน"
+    if(
+        !confirm(
+            "ยืนยันการลบข้อมูล ?"
+        )
+    ){
+        return;
+    }
+
+    let data = getStock();
+
+    data = data.filter(
+        item => item.lot !== lot
     );
 
+    localStorage.setItem(
+        "stockData",
+        JSON.stringify(data)
+    );
+
+    displayData();
 }
 function searchItem(){
 
@@ -1218,19 +1257,16 @@ function searchItem(){
 
     if(keyword === ""){
 
-        displayData(getStock());
+        displayData();
 
         return;
-
     }
 
     const result =
         getStock().filter(item =>
-
-            (item["Lot No."] || "")
-            .toLowerCase()
-            .includes(keyword)
-
+            item.lot &&
+            item.lot.toLowerCase()
+                .includes(keyword)
         );
 
     if(result.length === 0){
@@ -1240,11 +1276,9 @@ function searchItem(){
         );
 
         return;
-
     }
 
     displayData(result);
-
 }
       
 function getCurrentUser() {
@@ -1282,7 +1316,7 @@ function borrowItem() {
 
         const item =
             data.find(
-                x => x["Lot No."] === row.lot
+                x => x.lot === row.lot
             );
 
         if (!item) {
@@ -1297,7 +1331,7 @@ function borrowItem() {
 
         if (
             Number(row.qty) >
-           Number(item["Qty."])
+            Number(item.qty)
         ) {
 
             alert(
@@ -1318,27 +1352,35 @@ function borrowItem() {
 
         const item =
             data.find(
-                x => x["Lot No."] === row.lot
+                x => x.lot === row.lot
             );
 
-        item["Qty."] =
-            Number(item["Qty."])
+        item.qty =
+            Number(item.qty)
             -
             Number(row.qty);
 
     });
 
-
+    localStorage.setItem(
+        "stockData",
+        JSON.stringify(data)
+    );
 
     // บันทึกประวัติ
 
-
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
 
     borrowList.forEach(row => {
 
         const item =
             data.find(
-                 x => x["Lot No."] === row.lot
+                x => x.lot === row.lot
             );
 
  const historyRecord = {
@@ -1352,7 +1394,7 @@ function borrowItem() {
         new Date()
         .toLocaleString(),
 
-    pn: item["Part No."],
+    pn: item.pn,
 
     lot: row.lot,
 
@@ -1365,15 +1407,24 @@ function borrowItem() {
 
 };
 
+history.push(historyRecord);
 
 saveHistoryToCloud(
     historyRecord
 );
 });
 
+    localStorage.setItem(
+    "borrowHistory",
+    JSON.stringify(history)
+);
 
-
-
+let documents =
+    JSON.parse(
+        localStorage.getItem(
+            "borrowDocuments"
+        )
+    ) || [];
 
 const docNo =
     "BOR-" + Date.now();
@@ -1391,6 +1442,13 @@ const issueRecord = {
         [...borrowList]
 
 };
+
+documents.push(issueRecord);
+
+localStorage.setItem(
+    "borrowDocuments",
+    JSON.stringify(documents)
+);
 
 saveIssueToCloud(
     issueRecord
@@ -1475,13 +1533,18 @@ function returnItem() {
 
     let data = getStock();
 
-let history = [];
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
 
     returnList.forEach(row => {
 
         const item =
             data.find(
-                 x => x["Lot No."] === row.lot
+                x => x.lot === row.lot
             );
 
         if(Number(row.qty) <= 0){
@@ -1524,9 +1587,9 @@ let history = [];
 
         if(item){
 
-item["Qty."] =
-    Number(item["Qty."]) +
-    Number(row.qty);
+            item.qty =
+                Number(item.qty) +
+                Number(row.qty);
 
         }
 
@@ -1540,7 +1603,7 @@ const historyRecord = {
     date:
         new Date().toLocaleString(),
 
-    pn:item["Part No."],
+    pn:item.pn,
 
     lot:row.lot,
 
@@ -1550,7 +1613,7 @@ const historyRecord = {
 
 };
 
-
+history.push(historyRecord);
 
 saveHistoryToCloud(
     historyRecord
@@ -1575,6 +1638,15 @@ saveHistoryToCloud(
 
     });
 
+    localStorage.setItem(
+        "stockData",
+        JSON.stringify(data)
+    );
+
+    localStorage.setItem(
+        "borrowHistory",
+        JSON.stringify(history)
+    );
 
     displayData();
 
@@ -1599,48 +1671,27 @@ function exportReport() {
 
     const data = getStock();
 
-    let csv =
-        "PN,Lot,Date,Qty,Location,Material Type,Status\n";
+  let csv =
+    "PN,Lot,Date,Qty,Location,Material Type,Status\n";
 
     data.forEach(item => {
 
-        const pn =
-            item["Part No."] || "";
-
-        const lot =
-            item["Lot No."] || "";
-
-        const date =
-            item["Date"] || "";
-
-        const qty =
-            Number(item["Qty."] || 0);
-
-        const location =
-            item["Location"] || "";
-
-        const materialType =
-            item["Material Type"] || "";
-
-        const status =
-            qty > 0
-            ? "Available"
-            : "Out of Stock";
-
-        csv +=
-            `"${pn}",` +
-            `"${lot}",` +
-            `"${date}",` +
-            `"${qty}",` +
-            `"${location}",` +
-            `"${materialType}",` +
-            `"${status}"\n`;
+    csv +=
+    item.pn + "," +
+    item.lot + "," +
+    item.date + "," +
+    item.qty + "," +
+    item.location + "," +
+    (item.materialType || "") + "," +
+    (Number(item.qty) > 0 ? "Available" : "Out of Stock") +
+    "\n";
 
     });
 
-    const blob = new Blob(
+    const blob =
+    new Blob(
         [
-            "\uFEFF",
+            "\uFEFF",   // UTF-8 BOM
             csv
         ],
         {
@@ -1656,49 +1707,54 @@ function exportReport() {
         URL.createObjectURL(blob);
 
     link.download =
-        "รายงานสต๊อก_" +
-        new Date()
-        .toISOString()
-        .split("T")[0] +
-        ".csv";
+    "รายงานสต๊อก_" +
+    new Date().toISOString().split("T")[0] +
+    ".csv";
 
     link.click();
+
 }
 function exportHistory() {
 
-    const history = historyData || [];
+    const history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
 
     let csv =
-        "Date,Transaction,PN,Lot,Location,Qty,User\n";
+"Date,Transaction,PN,Lot,Location,Qty,User\n";
 
     history.forEach(item => {
 
         csv +=
-            `"${item.date || ""}",` +
-            `"${item.type === "BORROW"
-                ? "เบิกออก"
-                : item.type === "RETURN"
-                ? "รับคืน"
-                : item.type || ""}",` +
-            `"${item.pn || ""}",` +
-            `"${item.lot || ""}",` +
-            `"${item.location || ""}",` +
-            `"${item.qty || ""}",` +
-            `"${item.user || ""}"\n`;
+    item.date + "," +
+    (item.type === "BORROW"
+        ? "เบิกออก"
+        : item.type === "RETURN"
+        ? "รับคืน"
+        : item.type) + "," +
+    item.pn + "," +
+    item.lot + "," +
+    (item.location || "") + "," +
+    item.qty + "," +
+    item.user +
+    "\n";
 
     });
 
     const blob =
-        new Blob(
-            [
-                "\uFEFF",
-                csv
-            ],
-            {
-                type:
-                "text/csv;charset=utf-8;"
-            }
-        );
+    new Blob(
+        [
+            "\uFEFF",   // UTF-8 BOM
+            csv
+        ],
+        {
+            type:
+            "text/csv;charset=utf-8;"
+        }
+    );
 
     const link =
         document.createElement("a");
@@ -1707,11 +1763,9 @@ function exportHistory() {
         URL.createObjectURL(blob);
 
     link.download =
-        "รายงานประวัติการเบิกคืน_" +
-        new Date()
-        .toISOString()
-        .split("T")[0] +
-        ".csv";
+    "รายงานประวัติการเบิกคืน_" +
+    new Date().toISOString().split("T")[0] +
+    ".csv";
 
     link.click();
 
@@ -1756,49 +1810,47 @@ function clearReturnForm() {
     ).value = "";
 
 }  
-function displayHistory(){
+function displayHistory() {
 
     const history =
-        historyData || [];
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
 
     const table =
         document.getElementById(
             "historyTable"
         );
 
-    if(!table){
-        return;
-    }
+    if (!table) return;
 
     table.innerHTML = "";
 
-    const latestHistory =
-        history
-            .slice(-10)
-            .reverse();
+const latestHistory =
+    history
+        .slice(-10)
+        .reverse();
 
-    latestHistory.forEach(
-        (item,index) => {
+latestHistory.forEach((item,index) => {
 
-            let rowColor = "";
+    let rowColor = "";
 
-            if(item.type === "BORROW"){
+    if(item.type === "เบิกออก"){
 
-                rowColor = "#ffe5e5";
+        rowColor = "#ffe5e5";
 
-            }
-            else if(item.type === "RETURN"){
+    }else if(item.type === "รับคืน"){
 
-                rowColor = "#e5ffe5";
+        rowColor = "#e5ffe5";
 
-            }
+    }
 
-            table.innerHTML += `
+    table.innerHTML += `
 <tr style="background:${rowColor}">
     <td>${index + 1}</td>
-
-    <td>${item.date || ""}</td>
-
+    <td>${item.date}</td>
     <td>
         ${
             item.type === "BORROW"
@@ -1806,34 +1858,66 @@ function displayHistory(){
             : "🟢 รับคืน"
         }
     </td>
-
-    <td>${item.pn || ""}</td>
-
-    <td>${item.lot || ""}</td>
-
-    <td>${item.qty || ""}</td>
-
-    <td>${item.user || ""}</td>
+    <td>${item.pn}</td>
+    <td>${item.lot}</td>
+    <td>${item.qty}</td>
+    <td>${item.user}</td>
 
     <td>
         <button
-            onclick="deleteHistory('${item.transactionId || ""}')">
+            onclick="deleteHistory('${item.date}','${item.lot}')">
             ลบ
         </button>
     </td>
-
 </tr>
 `;
-        }
-    );
+});
 
 }
-function deleteHistory(){
+function deleteHistory(date, lot){
 
-    alert(
-        "ระบบลบประวัติจาก Google Sheet ยังไม่ได้เปิดใช้งาน"
+    const currentUser =
+        getCurrentUser();
+
+    if(
+        !currentUser ||
+        currentUser.role !== "Admin"
+    ){
+        alert(
+            "❌ เฉพาะ Admin เท่านั้น"
+        );
+        return;
+    }
+
+    if(
+        !confirm(
+            "ยืนยันการลบประวัติ ?"
+        )
+    ){
+        return;
+    }
+
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "borrowHistory"
+            )
+        ) || [];
+
+    history = history.filter(
+        item =>
+            !(
+                item.date === date &&
+                item.lot === lot
+            )
     );
 
+    localStorage.setItem(
+        "borrowHistory",
+        JSON.stringify(history)
+    );
+
+    displayHistory();
 }
 function addBorrowLot(){
 
@@ -1856,12 +1940,11 @@ function addBorrowLot(){
         );
 
         return;
-
     }
 
     const stockItem =
         getStock().find(
-            x => x["Lot No."] === lot
+            x => x.lot === lot
         );
 
     if(!stockItem){
@@ -1871,24 +1954,16 @@ function addBorrowLot(){
         );
 
         return;
-
     }
 
-    borrowList.push({
+borrowList.push({
 
-        pn:
-            stockItem["Part No."],
+    pn: stockItem.pn,
+    lot: stockItem.lot,
+    location: stockItem.location || "",
+    qty: qty
 
-        lot:
-            stockItem["Lot No."],
-
-        location:
-            stockItem["Location"] || "",
-
-        qty:
-            qty
-
-    });
+});
 
     renderBorrowList();
 
@@ -1957,6 +2032,7 @@ function addReturnLot(){
         );
 
         return;
+
     }
 
     if(isNaN(qty) || qty <= 0){
@@ -1966,11 +2042,12 @@ function addReturnLot(){
         );
 
         return;
+
     }
 
     const stockItem =
         getStock().find(
-            x => x["Lot No."] === lot
+            x => x.lot === lot
         );
 
     if(!stockItem){
@@ -1980,18 +2057,17 @@ function addReturnLot(){
         );
 
         return;
+
     }
 
     returnList.push({
 
-        lot:
-            stockItem["Lot No."],
+        lot: lot,
 
         location:
-            stockItem["Location"] || "",
+            stockItem.location || "",
 
-        qty:
-            qty
+        qty: qty
 
     });
 
@@ -2116,18 +2192,19 @@ function printBorrowDocument() {
 
 }
 function displayBorrowDocuments(){
-
     const docs =
-        issueHistoryData || [];
+        JSON.parse(
+            localStorage.getItem(
+                "borrowDocuments"
+            )
+        ) || [];
 
     const body =
         document.getElementById(
             "documentHistoryBody"
         );
 
-    if(!body){
-        return;
-    }
+    if(!body) return;
 
     body.innerHTML = "";
 
@@ -2138,58 +2215,62 @@ function displayBorrowDocuments(){
 
     latestDocs.forEach(doc => {
 
+         
+
         body.innerHTML += `
         <tr>
-
-            <td>${doc.docNo || ""}</td>
-
-            <td>${doc.date || ""}</td>
-
-            <td>${doc.user || ""}</td>
-
+       
+            <td>${doc.docNo}</td>
+            <td>${doc.date}</td>
+            <td>${doc.user}</td>
             <td>
                 <button
                     onclick="viewBorrowDocument('${doc.docNo}')">
                     ดู
                 </button>
             </td>
-
         </tr>
         `;
 
     });
-
 }
 
       
 function viewBorrowDocument(docNo){
 
     const docs =
-        issueHistoryData.filter(
-            item => item.docNo === docNo
+        JSON.parse(
+            localStorage.getItem(
+                "borrowDocuments"
+            )
+        ) || [];
+
+    const doc =
+        docs.find(
+            d => d.docNo === docNo
         );
 
-    if(docs.length === 0){
+    if(!doc){
 
         alert("ไม่พบเอกสาร");
 
         return;
-
     }
 
     document.getElementById(
         "docNo"
-    ).innerText = docNo;
+    ).innerText =
+        doc.docNo;
 
     document.getElementById(
         "docDate"
     ).innerText =
-        docs[0].date || "";
+        doc.date;
 
     document.getElementById(
         "docUser"
     ).innerText =
-        docs[0].user || "";
+        doc.user;
 
     const printTableBody =
         document.getElementById(
@@ -2198,20 +2279,23 @@ function viewBorrowDocument(docNo){
 
     printTableBody.innerHTML = "";
 
-    docs.forEach((item,index)=>{
+    doc.items.forEach(
+        (item,index)=>{
 
-        printTableBody.innerHTML += `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${item.lot || ""}</td>
-            <td>-</td>
-            <td>${item.qty || ""}</td>
-        </tr>
-        `;
+            printTableBody.innerHTML += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.lot}</td>
+                <td>${item.location || ""}</td>
+                <td>${item.qty}</td>
+            </tr>
+            `;
 
-    });
+        }
+    );
 
 }
+      
 window.onload = function(){
 
     const user =
@@ -2220,9 +2304,16 @@ window.onload = function(){
         );
 
     if(user){
-
         showMain();
 
+        displayHistory();
+
+        displayBorrowDocuments(); // เพิ่มบรรทัดนี้
     }
 
 };
+
+</script>
+
+</body>
+</html>
