@@ -337,7 +337,7 @@ class="hidden"
 </div>
 
 <div class="dashboard">
-      
+ </div>     
 
     <div class="box normal">
 
@@ -346,9 +346,7 @@ class="hidden"
         <h1 id="normalCount">
             0
         </h1>
-
-          
-          
+     
     </div>
 
     <div class="box warning">
@@ -633,9 +631,9 @@ class="hidden"
         ค้นหา
     </button>
 
-    <button onclick="displayData()">
-        แสดงทั้งหมด
-    </button>
+   <button onclick="loadStockFromCloud()">
+    แสดงทั้งหมด
+</button>
 
 </div>
 
@@ -705,35 +703,72 @@ class="hidden"
 
     </div>
 
-</div>
-
-      
+</div>      
 <script>
 
+
+
+
+
+      
 const API_URL =
 "https://script.google.com/macros/s/AKfycbzs8Ik1eW_pKnjjYLcUNA_N47fO6CaNBs0kTaOykLM358v4hfbN33e9ythckwFg0522/exec";
-      
+
+
+
+let stockData = [];
+let issueHistoryData = [];
 
 async function loadStockFromCloud(){
 
     try{
 
         const response =
-            await fetch(API_URL + "?sheet=Stock");
+            await fetch(
+                API_URL + "?sheet=Stock"
+            );
 
-        const data =
+        stockData =
             await response.json();
 
-        displayData(data);
+        displayData(stockData);
 
-    }catch(error){
+    }
+    catch(error){
 
         console.error(error);
 
-        alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ");
-    }
-}      
+        alert(
+            "โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ"
+        );
 
+    }
+
+}
+
+async function loadIssueHistoryFromCloud(){
+
+    try{
+
+        const response =
+            await fetch(
+                API_URL + "?sheet=IssueHistory"
+            );
+
+        issueHistoryData =
+            await response.json();
+
+        displayBorrowDocuments();
+
+    }
+    catch(error){
+
+        console.error(error);
+
+    }
+
+}      
+      
 async function saveToCloud(data){
 
     return fetch(API_URL,{
@@ -915,20 +950,21 @@ function showMain(){
         `${user.username}
          (${user.role})`;
 
-    loadStockFromCloud();
+loadStockFromCloud();
+loadHistoryFromCloud();
+loadIssueHistoryFromCloud();
 
 }
+
+
+      
 /* STOCK */
+
+let stockData = [];
 
 function getStock(){
 
-    return JSON.parse(
-
-        localStorage.getItem(
-            "stockData"
-        )
-
-    ) || [];
+    return stockData;
 
 }
 
@@ -944,16 +980,16 @@ async function saveItem() {
     if (!pn || !lot || !date || !qty || !location || !materialType) {
 
         alert("กรุณากรอกข้อมูลให้ครบ");
-
         return;
+
     }
 
-    let data = getStock();
+    const data = getStock();
 
     const duplicateLot = data.find(item =>
         (item["Lot No."] || "")
-            .trim()
-            .toLowerCase() ===
+        .trim()
+        .toLowerCase() ===
         lot.trim().toLowerCase()
     );
 
@@ -969,23 +1005,25 @@ async function saveItem() {
     }
 
     const newItem = {
-        pn: pn,
-        lot: lot,
-        date: date,
-        qty: qty,
-        location: location,
-        materialType: materialType
+        pn,
+        lot,
+        date,
+        qty,
+        location,
+        materialType
     };
 
     try {
 
-        await saveToCloud(newItem);
+        console.log("Saving:", newItem);
 
-        await loadStockFromCloud();
+await saveToCloud(newItem);
 
-        clearForm();
+await loadStockFromCloud();
 
-        alert("✅ บันทึกสำเร็จ");
+clearForm();
+
+alert("✅ บันทึกสำเร็จ");
 
     }
     catch(error) {
@@ -997,7 +1035,6 @@ async function saveItem() {
     }
 
 }
-
 function displayData(dataList = null){
 
     const data = (dataList || [])
@@ -1094,36 +1131,38 @@ function displayData(dataList = null){
 
     document.getElementById("outOfStockCount").innerText = outOfStock;
 }
-function editItem(lot) {
+function editItem(lot){
 
     const data = getStock();
 
     const item = data.find(
-        x => x.lot === lot
+        x => x["Lot No."] === lot
     );
 
-    if (!item) return;
+    if(!item){
+        return;
+    }
 
     document.getElementById("pn").value =
-        item.pn;
+        item["Part No."] || "";
 
     document.getElementById("lot").value =
-        item.lot;
+        item["Lot No."] || "";
 
     document.getElementById("storeDate").value =
-        item.date;
+        item["Date"] || "";
 
     document.getElementById("qty").value =
-        item.qty;
+        item["Qty."] || "";
 
     document.getElementById("location").value =
-        item.location;
+        item["Location"] || "";
 
     document.getElementById("materialType").value =
-        item.materialType || "";
+        item["Material Type"] || "";
 
     editIndex = data.findIndex(
-        x => x.lot === lot
+        x => x["Lot No."] === lot
     );
 
     document.getElementById("saveBtn")
@@ -1133,101 +1172,19 @@ function editItem(lot) {
         .style.display = "inline-block";
 }
       
-function updateItem() {
+function updateItem(){
 
-    const data = getStock();
-
-    const lot =
-        document.getElementById("lot")
-        .value
-        .trim();
-
-    const duplicateLot =
-        data.find(
-            (item,index)=>
-
-                item.lot &&
-                item.lot.trim().toLowerCase()
-                ===
-                lot.toLowerCase()
-
-                &&
-
-                index !== editIndex
-        );
-
-    if(duplicateLot){
-
-        alert(
-            "❌ Lot นี้มีอยู่แล้ว"
-        );
-
-        return;
-    }
-
-    data[editIndex] = {
-
-        pn:
-        document.getElementById("pn").value,
-
-        lot:
-        document.getElementById("lot").value,
-
-        date:
-        document.getElementById("storeDate").value,
-
-        qty:
-        document.getElementById("qty").value,
-
-        location:
-        document.getElementById("location").value,
-
-        materialType:
-        document.getElementById("materialType").value
-
-    };
-
-    localStorage.setItem(
-        "stockData",
-        JSON.stringify(data)
+    alert(
+        "ระบบแก้ไขข้อมูลบน Google Sheet ยังไม่ได้เปิดใช้งาน"
     );
 
-    editIndex = -1;
-
-    displayData();
-
-clearForm();
-
-document.getElementById("saveBtn")
-    .style.display = "inline-block";
-
-document.getElementById("updateBtn")
-    .style.display = "none";
-
-alert("✅ อัปเดตสำเร็จ");
 }
-function deleteItem(lot){
+function deleteItem(){
 
-    if(
-        !confirm(
-            "ยืนยันการลบข้อมูล ?"
-        )
-    ){
-        return;
-    }
-
-    let data = getStock();
-
-    data = data.filter(
-        item => item.lot !== lot
+    alert(
+        "ระบบลบข้อมูลบน Google Sheet ยังไม่ได้เปิดใช้งาน"
     );
 
-    localStorage.setItem(
-        "stockData",
-        JSON.stringify(data)
-    );
-
-    displayData();
 }
 function searchItem(){
 
@@ -1239,16 +1196,19 @@ function searchItem(){
 
     if(keyword === ""){
 
-        displayData();
+        displayData(getStock());
 
         return;
+
     }
 
     const result =
         getStock().filter(item =>
-            item.lot &&
-            item.lot.toLowerCase()
-                .includes(keyword)
+
+            (item["Lot No."] || "")
+            .toLowerCase()
+            .includes(keyword)
+
         );
 
     if(result.length === 0){
@@ -1258,9 +1218,11 @@ function searchItem(){
         );
 
         return;
+
     }
 
     displayData(result);
+
 }
       
 function getCurrentUser() {
@@ -1298,7 +1260,7 @@ function borrowItem() {
 
         const item =
             data.find(
-                x => x.lot === row.lot
+                x => x["Lot No."] === row.lot
             );
 
         if (!item) {
@@ -1313,7 +1275,7 @@ function borrowItem() {
 
         if (
             Number(row.qty) >
-            Number(item.qty)
+           Number(item["Qty."])
         ) {
 
             alert(
@@ -1334,29 +1296,21 @@ function borrowItem() {
 
         const item =
             data.find(
-                x => x.lot === row.lot
+                x => x["Lot No."] === row.lot
             );
 
-        item.qty =
-            Number(item.qty)
+        item["Qty."] =
+            Number(item["Qty."])
             -
             Number(row.qty);
 
     });
 
-    localStorage.setItem(
-        "stockData",
-        JSON.stringify(data)
-    );
+
 
     // บันทึกประวัติ
 
-    let history =
-        JSON.parse(
-            localStorage.getItem(
-                "borrowHistory"
-            )
-        ) || [];
+
 
     borrowList.forEach(row => {
 
@@ -1376,7 +1330,7 @@ function borrowItem() {
         new Date()
         .toLocaleString(),
 
-    pn: item.pn,
+    pn: item["Part No."],
 
     lot: row.lot,
 
@@ -1389,24 +1343,15 @@ function borrowItem() {
 
 };
 
-history.push(historyRecord);
 
 saveHistoryToCloud(
     historyRecord
 );
 });
 
-    localStorage.setItem(
-    "borrowHistory",
-    JSON.stringify(history)
-);
 
-let documents =
-    JSON.parse(
-        localStorage.getItem(
-            "borrowDocuments"
-        )
-    ) || [];
+
+
 
 const docNo =
     "BOR-" + Date.now();
@@ -1424,13 +1369,6 @@ const issueRecord = {
         [...borrowList]
 
 };
-
-documents.push(issueRecord);
-
-localStorage.setItem(
-    "borrowDocuments",
-    JSON.stringify(documents)
-);
 
 saveIssueToCloud(
     issueRecord
@@ -1515,12 +1453,7 @@ function returnItem() {
 
     let data = getStock();
 
-    let history =
-        JSON.parse(
-            localStorage.getItem(
-                "borrowHistory"
-            )
-        ) || [];
+let history = [];
 
     returnList.forEach(row => {
 
@@ -1569,9 +1502,9 @@ function returnItem() {
 
         if(item){
 
-            item.qty =
-                Number(item.qty) +
-                Number(row.qty);
+item["Qty."] =
+    Number(item["Qty."]) +
+    Number(row.qty);
 
         }
 
@@ -1585,7 +1518,7 @@ const historyRecord = {
     date:
         new Date().toLocaleString(),
 
-    pn:item.pn,
+    pn:item["Part No."],
 
     lot:row.lot,
 
@@ -1595,7 +1528,7 @@ const historyRecord = {
 
 };
 
-history.push(historyRecord);
+
 
 saveHistoryToCloud(
     historyRecord
@@ -1620,15 +1553,6 @@ saveHistoryToCloud(
 
     });
 
-    localStorage.setItem(
-        "stockData",
-        JSON.stringify(data)
-    );
-
-    localStorage.setItem(
-        "borrowHistory",
-        JSON.stringify(history)
-    );
 
     displayData();
 
@@ -1653,27 +1577,48 @@ function exportReport() {
 
     const data = getStock();
 
-  let csv =
-    "PN,Lot,Date,Qty,Location,Material Type,Status\n";
+    let csv =
+        "PN,Lot,Date,Qty,Location,Material Type,Status\n";
 
     data.forEach(item => {
 
-    csv +=
-    item.pn + "," +
-    item.lot + "," +
-    item.date + "," +
-    item.qty + "," +
-    item.location + "," +
-    (item.materialType || "") + "," +
-    (Number(item.qty) > 0 ? "Available" : "Out of Stock") +
-    "\n";
+        const pn =
+            item["Part No."] || "";
+
+        const lot =
+            item["Lot No."] || "";
+
+        const date =
+            item["Date"] || "";
+
+        const qty =
+            Number(item["Qty."] || 0);
+
+        const location =
+            item["Location"] || "";
+
+        const materialType =
+            item["Material Type"] || "";
+
+        const status =
+            qty > 0
+            ? "Available"
+            : "Out of Stock";
+
+        csv +=
+            `"${pn}",` +
+            `"${lot}",` +
+            `"${date}",` +
+            `"${qty}",` +
+            `"${location}",` +
+            `"${materialType}",` +
+            `"${status}"\n`;
 
     });
 
-    const blob =
-    new Blob(
+    const blob = new Blob(
         [
-            "\uFEFF",   // UTF-8 BOM
+            "\uFEFF",
             csv
         ],
         {
@@ -1689,54 +1634,49 @@ function exportReport() {
         URL.createObjectURL(blob);
 
     link.download =
-    "รายงานสต๊อก_" +
-    new Date().toISOString().split("T")[0] +
-    ".csv";
+        "รายงานสต๊อก_" +
+        new Date()
+        .toISOString()
+        .split("T")[0] +
+        ".csv";
 
     link.click();
-
 }
 function exportHistory() {
 
-    const history =
-        JSON.parse(
-            localStorage.getItem(
-                "borrowHistory"
-            )
-        ) || [];
+    const history = historyData || [];
 
     let csv =
-"Date,Transaction,PN,Lot,Location,Qty,User\n";
+        "Date,Transaction,PN,Lot,Location,Qty,User\n";
 
     history.forEach(item => {
 
         csv +=
-    item.date + "," +
-    (item.type === "BORROW"
-        ? "เบิกออก"
-        : item.type === "RETURN"
-        ? "รับคืน"
-        : item.type) + "," +
-    item.pn + "," +
-    item.lot + "," +
-    (item.location || "") + "," +
-    item.qty + "," +
-    item.user +
-    "\n";
+            `"${item.date || ""}",` +
+            `"${item.type === "BORROW"
+                ? "เบิกออก"
+                : item.type === "RETURN"
+                ? "รับคืน"
+                : item.type || ""}",` +
+            `"${item.pn || ""}",` +
+            `"${item.lot || ""}",` +
+            `"${item.location || ""}",` +
+            `"${item.qty || ""}",` +
+            `"${item.user || ""}"\n`;
 
     });
 
     const blob =
-    new Blob(
-        [
-            "\uFEFF",   // UTF-8 BOM
-            csv
-        ],
-        {
-            type:
-            "text/csv;charset=utf-8;"
-        }
-    );
+        new Blob(
+            [
+                "\uFEFF",
+                csv
+            ],
+            {
+                type:
+                "text/csv;charset=utf-8;"
+            }
+        );
 
     const link =
         document.createElement("a");
@@ -1745,9 +1685,11 @@ function exportHistory() {
         URL.createObjectURL(blob);
 
     link.download =
-    "รายงานประวัติการเบิกคืน_" +
-    new Date().toISOString().split("T")[0] +
-    ".csv";
+        "รายงานประวัติการเบิกคืน_" +
+        new Date()
+        .toISOString()
+        .split("T")[0] +
+        ".csv";
 
     link.click();
 
@@ -1792,47 +1734,49 @@ function clearReturnForm() {
     ).value = "";
 
 }  
-function displayHistory() {
+function displayHistory(){
 
     const history =
-        JSON.parse(
-            localStorage.getItem(
-                "borrowHistory"
-            )
-        ) || [];
+        historyData || [];
 
     const table =
         document.getElementById(
             "historyTable"
         );
 
-    if (!table) return;
+    if(!table){
+        return;
+    }
 
     table.innerHTML = "";
 
-const latestHistory =
-    history
-        .slice(-10)
-        .reverse();
+    const latestHistory =
+        history
+            .slice(-10)
+            .reverse();
 
-latestHistory.forEach((item,index) => {
+    latestHistory.forEach(
+        (item,index) => {
 
-    let rowColor = "";
+            let rowColor = "";
 
-    if(item.type === "เบิกออก"){
+            if(item.type === "BORROW"){
 
-        rowColor = "#ffe5e5";
+                rowColor = "#ffe5e5";
 
-    }else if(item.type === "รับคืน"){
+            }
+            else if(item.type === "RETURN"){
 
-        rowColor = "#e5ffe5";
+                rowColor = "#e5ffe5";
 
-    }
+            }
 
-    table.innerHTML += `
+            table.innerHTML += `
 <tr style="background:${rowColor}">
     <td>${index + 1}</td>
-    <td>${item.date}</td>
+
+    <td>${item.date || ""}</td>
+
     <td>
         ${
             item.type === "BORROW"
@@ -1840,66 +1784,34 @@ latestHistory.forEach((item,index) => {
             : "🟢 รับคืน"
         }
     </td>
-    <td>${item.pn}</td>
-    <td>${item.lot}</td>
-    <td>${item.qty}</td>
-    <td>${item.user}</td>
+
+    <td>${item.pn || ""}</td>
+
+    <td>${item.lot || ""}</td>
+
+    <td>${item.qty || ""}</td>
+
+    <td>${item.user || ""}</td>
 
     <td>
         <button
-            onclick="deleteHistory('${item.date}','${item.lot}')">
+            onclick="deleteHistory('${item.transactionId || ""}')">
             ลบ
         </button>
     </td>
+
 </tr>
 `;
-});
+        }
+    );
 
 }
-function deleteHistory(date, lot){
+function deleteHistory(){
 
-    const currentUser =
-        getCurrentUser();
-
-    if(
-        !currentUser ||
-        currentUser.role !== "Admin"
-    ){
-        alert(
-            "❌ เฉพาะ Admin เท่านั้น"
-        );
-        return;
-    }
-
-    if(
-        !confirm(
-            "ยืนยันการลบประวัติ ?"
-        )
-    ){
-        return;
-    }
-
-    let history =
-        JSON.parse(
-            localStorage.getItem(
-                "borrowHistory"
-            )
-        ) || [];
-
-    history = history.filter(
-        item =>
-            !(
-                item.date === date &&
-                item.lot === lot
-            )
+    alert(
+        "ระบบลบประวัติจาก Google Sheet ยังไม่ได้เปิดใช้งาน"
     );
 
-    localStorage.setItem(
-        "borrowHistory",
-        JSON.stringify(history)
-    );
-
-    displayHistory();
 }
 function addBorrowLot(){
 
@@ -1922,11 +1834,12 @@ function addBorrowLot(){
         );
 
         return;
+
     }
 
     const stockItem =
         getStock().find(
-            x => x.lot === lot
+            x => x["Lot No."] === lot
         );
 
     if(!stockItem){
@@ -1936,16 +1849,24 @@ function addBorrowLot(){
         );
 
         return;
+
     }
 
-borrowList.push({
+    borrowList.push({
 
-    pn: stockItem.pn,
-    lot: stockItem.lot,
-    location: stockItem.location || "",
-    qty: qty
+        pn:
+            stockItem["Part No."],
 
-});
+        lot:
+            stockItem["Lot No."],
+
+        location:
+            stockItem["Location"] || "",
+
+        qty:
+            qty
+
+    });
 
     renderBorrowList();
 
@@ -2014,7 +1935,6 @@ function addReturnLot(){
         );
 
         return;
-
     }
 
     if(isNaN(qty) || qty <= 0){
@@ -2024,12 +1944,11 @@ function addReturnLot(){
         );
 
         return;
-
     }
 
     const stockItem =
         getStock().find(
-            x => x.lot === lot
+            x => x["Lot No."] === lot
         );
 
     if(!stockItem){
@@ -2039,17 +1958,18 @@ function addReturnLot(){
         );
 
         return;
-
     }
 
     returnList.push({
 
-        lot: lot,
+        lot:
+            stockItem["Lot No."],
 
         location:
-            stockItem.location || "",
+            stockItem["Location"] || "",
 
-        qty: qty
+        qty:
+            qty
 
     });
 
@@ -2174,19 +2094,18 @@ function printBorrowDocument() {
 
 }
 function displayBorrowDocuments(){
+
     const docs =
-        JSON.parse(
-            localStorage.getItem(
-                "borrowDocuments"
-            )
-        ) || [];
+        issueHistoryData || [];
 
     const body =
         document.getElementById(
             "documentHistoryBody"
         );
 
-    if(!body) return;
+    if(!body){
+        return;
+    }
 
     body.innerHTML = "";
 
@@ -2197,62 +2116,58 @@ function displayBorrowDocuments(){
 
     latestDocs.forEach(doc => {
 
-         
-
         body.innerHTML += `
         <tr>
-       
-            <td>${doc.docNo}</td>
-            <td>${doc.date}</td>
-            <td>${doc.user}</td>
+
+            <td>${doc.docNo || ""}</td>
+
+            <td>${doc.date || ""}</td>
+
+            <td>${doc.user || ""}</td>
+
             <td>
                 <button
                     onclick="viewBorrowDocument('${doc.docNo}')">
                     ดู
                 </button>
             </td>
+
         </tr>
         `;
 
     });
+
 }
 
       
 function viewBorrowDocument(docNo){
 
     const docs =
-        JSON.parse(
-            localStorage.getItem(
-                "borrowDocuments"
-            )
-        ) || [];
-
-    const doc =
-        docs.find(
-            d => d.docNo === docNo
+        issueHistoryData.filter(
+            item => item.docNo === docNo
         );
 
-    if(!doc){
+    if(docs.length === 0){
 
         alert("ไม่พบเอกสาร");
 
         return;
+
     }
 
     document.getElementById(
         "docNo"
-    ).innerText =
-        doc.docNo;
+    ).innerText = docNo;
 
     document.getElementById(
         "docDate"
     ).innerText =
-        doc.date;
+        docs[0].date || "";
 
     document.getElementById(
         "docUser"
     ).innerText =
-        doc.user;
+        docs[0].user || "";
 
     const printTableBody =
         document.getElementById(
@@ -2261,23 +2176,20 @@ function viewBorrowDocument(docNo){
 
     printTableBody.innerHTML = "";
 
-    doc.items.forEach(
-        (item,index)=>{
+    docs.forEach((item,index)=>{
 
-            printTableBody.innerHTML += `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${item.lot}</td>
-                <td>${item.location || ""}</td>
-                <td>${item.qty}</td>
-            </tr>
-            `;
+        printTableBody.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${item.lot || ""}</td>
+            <td>-</td>
+            <td>${item.qty || ""}</td>
+        </tr>
+        `;
 
-        }
-    );
+    });
 
 }
-      
 window.onload = function(){
 
     const user =
@@ -2286,16 +2198,9 @@ window.onload = function(){
         );
 
     if(user){
+
         showMain();
 
-        displayHistory();
-
-        displayBorrowDocuments(); // เพิ่มบรรทัดนี้
     }
 
 };
-
-</script>
-
-</body>
-</html>
