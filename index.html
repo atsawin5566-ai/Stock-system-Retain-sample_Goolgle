@@ -716,6 +716,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzs8Ik1eW_pKnjjYLcUNA_N
 
 let stockData = [];
 let issueHistoryData = [];
+let historyData = [];
 
 async function loadStockFromCloud(){
 
@@ -766,6 +767,28 @@ async function loadIssueHistoryFromCloud(){
     }
 
 }      
+async function loadHistoryFromCloud(){
+
+    try{
+
+        const response =
+            await fetch(
+                API_URL + "?sheet=History"
+            );
+
+        historyData =
+            await response.json();
+
+        displayHistory();
+
+    }
+    catch(error){
+
+        console.error(error);
+
+    }
+
+}
       
 async function saveToCloud(data){
 
@@ -1316,7 +1339,7 @@ function borrowItem() {
 
         const item =
             data.find(
-                x => x.lot === row.lot
+                 x => x["Lot No."] === row.lot
             );
 
  const historyRecord = {
@@ -1459,7 +1482,7 @@ let history = [];
 
         const item =
             data.find(
-                x => x.lot === row.lot
+                 x => x["Lot No."] === row.lot
             );
 
         if(Number(row.qty) <= 0){
