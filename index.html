@@ -428,45 +428,40 @@ STATUS
         
     <!-- Dashboard -->
 
-    <div class="dashboard">
+   <div class="dashboard">
 
-        <div class="stat-card">
-            <h2>126</h2>
-            <p>Total Lot</p>
-        </div>
-
-<div class="stat-card">
-    <h2 id="expire30Days">0</h2>
-    <p>Expire in 30 Days</p>
-</div>
-
-<div class="stat-card">
-    <h2 id="expiredLot">0</h2>
-    <p>Expired</p>
-</div>
-
-        <div class="stat-card">
-            <h2>5</h2>
-            <p>Out Of Stock</p>
-        </div>
-
-        <div class="stat-card">
-            
-             <h2 id="expiredLot">0</h2>
-             <p>Expired</p>
-        </div>
-
-        <div class="stat-card">
-            <h2>28</h2>
-            <p>Borrow Today</p>
-        </div>
-
+    <div class="stat-card">
+        <h2 id="totalLot">0</h2>
+        <p>Total Lot</p>
     </div>
+
+    <div class="stat-card">
+        <h2 id="totalStockQty">0</h2>
+        <p>Total Stock Qty</p>
+    </div>
+
+    <div class="stat-card">
+        <h2 id="expire30Days">0</h2>
+        <p>Expire in 30 Days</p>
+    </div>
+
+    <div class="stat-card">
+        <h2 id="expiredLot">0</h2>
+        <p>Expired</p>
+    </div>
+
+    <div class="stat-card">
+        <h2 id="outOfStock">0</h2>
+        <p>Out of Stock</p>
+    </div>
+
+</div>
         
 </div>
 
 
 
+    
   <div id="stockPage" class="page">  
     <!-- Add Item -->
 
@@ -874,50 +869,68 @@ function showPage(pageId){
 }
 
     
-function updateDashboard(){
+function updateDashboard() {
 
-    const data = stockData;
+    const data = stockData || [];
 
     let totalLot = data.length;
+    let totalStockQty = 0;
     let expire30Days = 0;
     let expiredLot = 0;
+    let outOfStock = 0;
 
     const today = new Date();
 
-    data.forEach(item=>{
+    data.forEach(item => {
 
-        const storeDate = new Date(item.date);
+        const qty = Number(item.qty || 0);
 
-        const expiryDate = new Date(storeDate);
+        totalStockQty += qty;
 
-        expiryDate.setDate(
-            expiryDate.getDate() + 365
-        );
-
-        const diffDays =
-        Math.ceil(
-            (expiryDate - today)
-            / (1000*60*60*24)
-        );
-
-        if(diffDays >= 0 && diffDays <= 30){
-            expire30Days++;
+        if (qty <= 0) {
+            outOfStock++;
         }
 
-        if(diffDays < 0){
-            expiredLot++;
+        if (item.date) {
+
+            const storeDate = new Date(item.date);
+
+            const expiryDate = new Date(storeDate);
+
+            expiryDate.setDate(
+                expiryDate.getDate() + 365
+            );
+
+            const diffDays = Math.ceil(
+                (expiryDate - today) /
+                (1000 * 60 * 60 * 24)
+            );
+
+            if (diffDays >= 0 && diffDays <= 30) {
+                expire30Days++;
+            }
+
+            if (diffDays < 0) {
+                expiredLot++;
+            }
         }
 
     });
 
     document.getElementById("totalLot").textContent =
-    totalLot;
+        totalLot;
+
+    document.getElementById("totalStockQty").textContent =
+        totalStockQty.toLocaleString();
 
     document.getElementById("expire30Days").textContent =
-    expire30Days;
+        expire30Days;
 
     document.getElementById("expiredLot").textContent =
-    expiredLot;
+        expiredLot;
+
+    document.getElementById("outOfStock").textContent =
+        outOfStock;
 }
 
 
@@ -926,7 +939,9 @@ function updateDashboard(){
 
 
     
-window.onload = function(){
+window.onload = async function () {
+
+    await loadStockFromCloud();
 
     displayData();
 
