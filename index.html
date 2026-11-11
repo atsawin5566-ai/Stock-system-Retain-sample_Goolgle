@@ -223,6 +223,11 @@ DASHBOARD
 .out-stock{
     border-left:6px solid #991b1b;
 }
+#saveMsg{
+    margin-top:10px;
+    font-weight:bold;
+    color:#16a34a;
+}
     
 /* =========================
 CARD
@@ -542,9 +547,8 @@ onclick="addItem()">
 บันทึก
 
 </button>
-
         </div>
-
+<div id="saveMsg">
     </div>
 
      <!-- Stock Table -->
@@ -752,7 +756,21 @@ async function addItem(){
         return;
 
     }
+    
+const duplicateLot = stockData.find(item =>
+    String(item.Lot || item.lot)
+    .toUpperCase()
+    ===
+    lot.toUpperCase()
+);
 
+if(duplicateLot){
+
+    alert("❌ Lot นี้มีอยู่ในระบบแล้ว");
+
+    return;
+}
+    
     const item = {
 
         pn,
@@ -782,7 +800,15 @@ displayData();
 updateDashboard();
 
 clearForm();
+    
+document.getElementById("saveMsg").innerHTML =
+"✅ บันทึกข้อมูลสำเร็จ";
 
+setTimeout(() => {
+
+    document.getElementById("saveMsg").innerHTML = "";
+
+},3000);    
 }
 
 /* =========================
