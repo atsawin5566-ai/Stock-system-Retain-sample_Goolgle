@@ -712,6 +712,26 @@ async function saveToCloud(item){
 
 }
     
+async function loadStockFromCloud(){
+
+    try{
+
+        const response =
+        await fetch(API_URL);
+
+        stockData =
+        await response.json();
+
+    }catch(error){
+
+        console.error(error);
+
+        alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ");
+
+    }
+
+}
+
     
 /* =========================
 ADD ITEM
@@ -749,22 +769,19 @@ if(editIndex === -1){
 
     await saveToCloud(item);
 
-    stockData.push(item);
-
 }else{
 
-        stockData[editIndex] = item;
+    stockData[editIndex] = item;
 
-        editIndex = -1;
+}
+    
+await loadStockFromCloud();
 
-        document.getElementById("saveBtn").innerText =
-        "บันทึก";
+displayData();
 
-    }
+updateDashboard();
 
-    displayData();
-    updateDashboard();
-    clearForm();
+clearForm();
 
 }
 
