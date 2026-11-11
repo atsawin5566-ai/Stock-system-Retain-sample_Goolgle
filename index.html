@@ -188,7 +188,42 @@ DASHBOARD
 
     color:#64748b;
 }
+/* Total Lot */
+.total-lot h2{
+    color:#2563eb;
+}
 
+/* Total Stock Qty */
+.total-stock h2{
+    color:#16a34a;
+}
+
+/* Expire in 30 Days */
+.expire-warning h2{
+    color:#f59e0b;
+}
+
+/* Expired */
+.expired h2{
+    color:#dc2626;
+}
+
+/* Out Of Stock */
+.out-stock h2{
+    color:#991b1b;
+}
+.expire-warning{
+    border-left:6px solid #f59e0b;
+}
+
+.expired{
+    border-left:6px solid #dc2626;
+}
+
+.out-stock{
+    border-left:6px solid #991b1b;
+}
+    
 /* =========================
 CARD
 ========================= */
@@ -309,9 +344,17 @@ TABLE
 ========================= */
 
 .table-container{
-    overflow:auto;
+    max-height:500px;
+    overflow-y:auto;
+    overflow-x:auto;
 }
-
+    
+thead th{
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+    
 table{
 
     width:100%;
@@ -706,9 +749,13 @@ function displayData(){
     const tbody =
     document.getElementById("stockTable");
 
-    tbody.innerHTML = "";
+tbody.innerHTML = "";
 
-    stockData.forEach((item,index)=>{
+const sortedData = [...stockData].sort((a,b)=>
+    new Date(b.date) - new Date(a.date)
+);
+
+sortedData.forEach((item,index)=>{
 
         tbody.innerHTML += `
 
