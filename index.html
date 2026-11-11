@@ -27,7 +27,26 @@ body{
     );
     min-height:100vh;
 }
+.page{
+    display:none;
+}
 
+.page.active{
+    display:block;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+    
 /* =========================
 SIDEBAR
 ========================= */
@@ -388,19 +407,14 @@ STATUS
 
     <div class="menu">
 
-        <a href="#">🏠 Dashboard</a>
-
-        <a href="#">📦 Stock</a>
-
-        <a href="#">📤 Borrow</a>
-
-        <a href="#">📥 Return</a>
-
-        <a href="#">📜 History</a>
-
-        <a href="#">👤 Users</a>
-
-    </div>
+<div class="menu">
+    <a href="#" onclick="showPage('dashboardPage')">🏠 Dashboard</a>
+    <a href="#" onclick="showPage('stockPage')">📦 Stock</a>
+    <a href="#" onclick="showPage('borrowPage')">📤 Borrow</a>
+    <a href="#" onclick="showPage('returnPage')">📥 Return</a>
+    <a href="#" onclick="showPage('historyPage')">📜 History</a>
+    <a href="#" onclick="showPage('usersPage')">👤 Users</a>
+</div>
 
 </div>
 
@@ -416,6 +430,9 @@ STATUS
 
     </div>
 
+
+    <div id="dashboardPage" class="page active">
+        
     <!-- Dashboard -->
 
     <div class="dashboard">
@@ -441,7 +458,12 @@ STATUS
         </div>
 
     </div>
+        
+</div>
 
+
+
+  <div id="stockPage" class="page">  
     <!-- Add Item -->
 
     <div class="card">
@@ -555,7 +577,64 @@ onkeyup="searchStock()">
 
     </div>
 
+</div> <!-- ปิด stockPage -->
+
+
+
+<div id="borrowPage" class="page">
+
+    <div class="card">
+        <div class="card-title">
+            📤 Borrow
+        </div>
+
+        <p>หน้าจอเบิกสินค้า</p>
+    </div>
+
 </div>
+
+
+<div id="returnPage" class="page">
+
+    <div class="card">
+        <div class="card-title">
+            📥 Return
+        </div>
+
+        <p>หน้าจอคืนสินค้า</p>
+    </div>
+
+</div>
+
+
+<div id="historyPage" class="page">
+
+    <div class="card">
+        <div class="card-title">
+            📜 History
+        </div>
+
+        <p>หน้าจอประวัติการเบิก-คืน</p>
+    </div>
+
+</div>
+
+
+<div id="usersPage" class="page">
+
+    <div class="card">
+        <div class="card-title">
+            👤 Users
+        </div>
+
+        <p>หน้าจอจัดการผู้ใช้งาน</p>
+    </div>
+
+</div>
+
+
+
+    
 
 
 
@@ -780,7 +859,20 @@ function searchStock(){
     });
 
 }
+    
+function showPage(pageId){
 
+    document.querySelectorAll('.page').forEach(page=>{
+        page.classList.remove('active');
+    });
+
+    document.getElementById(pageId).classList.add('active');
+    
+}
+
+
+
+    
 </script>
 
 
