@@ -808,27 +808,27 @@ sortedData.forEach((item,index)=>{
 
             <td>${index+1}</td>
 
-            <td>${item.pn}</td>
+           <td>${item.PN}</td>
 
-            <td>${item.lot}</td>
+           <td>${item.Lot}</td>
 
-            <td>${item.date}</td>
+           <td>${item.Date}</td>
 
-            <td>${item.qty}</td>
+           <td>${item.Qty}</td>
 
-            <td>${item.location}</td>
+           <td>${item.Location}</td>
 
-            <td>${item.materialType}</td>
+           <td>${item.MaterialType}</td>
 
             <td>
 
-                ${
-                    Number(item.qty)>0
-                    ?
-                    '<span class="status-ok">In Stock</span>'
-                    :
-                    '<span class="status-danger">Out Of Stock</span>'
-                }
+${
+    Number(item.Qty) > 0
+    ?
+    '<span class="status-ok">In Stock</span>'
+    :
+    '<span class="status-danger">Out Of Stock</span>'
+}
 
             </td>
 
@@ -977,7 +977,7 @@ function updateDashboard() {
 
     data.forEach(item => {
 
-        const qty = Number(item.qty || 0);
+        const qty = Number(item.Qty || 0);
 
         totalStockQty += qty;
 
@@ -985,9 +985,9 @@ function updateDashboard() {
             outOfStock++;
         }
 
-        if (item.date) {
+        if (item.Date) {
 
-            const storeDate = new Date(item.date);
+            const storeDate = new Date(item.Date);
 
             const expiryDate = new Date(storeDate);
 
