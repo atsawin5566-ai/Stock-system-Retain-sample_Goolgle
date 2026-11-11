@@ -683,15 +683,41 @@ onkeyup="searchStock()">
 
     
 <script>
-
+    
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxrn4RAaxDg2e40cbNFHXjdfWzi3qb9v0gmyqXoixH_k6xtDQnp7SNMsCPEenTVllRm7Q/exec";
+    
 let stockData = [];
 let editIndex = -1;
+    
+async function saveToCloud(item){
 
+    try{
+
+        await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify(item)
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        alert("บันทึกข้อมูลไม่สำเร็จ");
+
+    }
+
+}
+    
+    
 /* =========================
 ADD ITEM
 ========================= */
 
-function addItem(){
+async function addItem(){
 
     const pn = document.getElementById("pn").value.trim();
     const lot = document.getElementById("lot").value.trim();
@@ -719,11 +745,13 @@ function addItem(){
 
     };
 
-    if(editIndex === -1){
+if(editIndex === -1){
 
-        stockData.push(item);
+    await saveToCloud(item);
 
-    }else{
+    stockData.push(item);
+
+}else{
 
         stockData[editIndex] = item;
 
