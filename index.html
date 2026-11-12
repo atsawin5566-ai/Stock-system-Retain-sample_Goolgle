@@ -1319,7 +1319,7 @@ function updateDashboard() {
     let totalStockQty = 0;
     let expire30Days = 0;
     let expiredLot = 0;
-    let outOfStock = 0;
+    let borrowedLot = 0;
 
     const today = new Date();
 
@@ -1335,7 +1335,7 @@ if(qty > 0){
         totalStockQty += qty;
 
         if (qty <= 0) {
-            outOfStock++;
+            borrowedLot++;
         }
 
         if (item.Date) {
@@ -1377,7 +1377,7 @@ if(qty > 0){
         expiredLot;
 
     document.getElementById("outOfStock").textContent =
-        outOfStock;
+    borrowedLot;
 }
 
 function addBorrowItem(){
