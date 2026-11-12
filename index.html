@@ -632,16 +632,80 @@ onkeyup="searchStock()">
 <div id="borrowPage" class="page">
 
     <div class="card">
+
         <div class="card-title">
-            📤 Borrow
+            📤 เบิกสินค้า
         </div>
 
-        <p>หน้าจอเบิกสินค้า</p>
+        <div class="form-grid">
+
+            <input
+            id="borrowLot"
+            type="text"
+            placeholder="Lot No">
+
+            <input
+            id="borrowQty"
+            type="number"
+            placeholder="จำนวน">
+
+            <input
+            id="borrower"
+            type="text"
+            placeholder="ผู้เบิก">
+
+            <button
+            class="btn btn-primary"
+            onclick="addBorrowItem()">
+
+            เพิ่มรายการ
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Lot</th>
+                    <th>Location</th>
+                    <th>Qty</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="borrowTable">
+
+            </tbody>
+
+        </table>
+
+        <br>
+
+        <button
+        class="btn btn-success"
+        onclick="borrowAll()">
+
+        เบิกสินค้าทั้งหมด
+
+        </button>
+
     </div>
 
 </div>
 
 
+
+    
 <div id="returnPage" class="page">
 
     <div class="card">
@@ -692,6 +756,8 @@ const API_URL =
 "https://script.google.com/macros/s/AKfycbxrn4RAaxDg2e40cbNFHXjdfWzi3qb9v0gmyqXoixH_k6xtDQnp7SNMsCPEenTVllRm7Q/exec";
     
 let stockData = [];
+let borrowItems = [];
+    
 let editIndex = -1;
     
 async function saveToCloud(item){
@@ -774,8 +840,36 @@ async function updateToCloud(
     });
 
 }
+async function borrowToCloud(data){
 
+    try{
+
+        await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify({
+
+                action:"borrow",
+
+                ...data
+
+            })
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        alert("บันทึกการเบิกไม่สำเร็จ");
+
+    }
+
+}
     
+
+
     
 /* =========================
 ADD ITEM
@@ -1178,11 +1272,145 @@ function updateDashboard() {
         outOfStock;
 }
 
+function addBorrowItem(){
+
+    const lot =
+    document.getElementById("borrowLot")
+    .value
+    .trim();
+
+    const qty =
+    Number(
+        document.getElementById("borrowQty")
+        .value
+    );
+
+    const borrower =
+    document.getElementById("borrower")
+    .value
+    .trim();
+
+    if(!lot || !qty || !borrower){
+
+        alert("กรุณากรอกข้อมูลให้ครบ");
+
+        return;
+
+    }
+
+    const stockItem =
+    stockData.find(item =>
+
+        String(item.Lot || item.lot)
+        .toUpperCase()
+        ===
+        lot.toUpperCase()
+
+    );
+
+    if(!stockItem){
+
+        alert("ไม่พบ Lot นี้ใน Stock");
+
+        return;
+
+    }
+
+    const currentQty =
+    Number(stockItem.Qty || stockItem.qty);
+
+    if(qty > currentQty){
+
+        alert(
+            `จำนวนคงเหลือมีเพียง ${currentQty}`
+        );
+
+        return;
+
+    }
+
+    borrowItems.push({
+
+        lot:
+
+        stockItem.Lot ||
+        stockItem.lot,
+
+        qty:qty,
+
+        location:
+
+        stockItem.Location ||
+        stockItem.location,
+
+        borrower:borrower
+
+    });
+
+    renderBorrowTable();
+
+    document.getElementById(
+        "borrowLot"
+    ).value = "";
+
+    document.getElementById(
+        "borrowQty"
+    ).value = "";
+
+}
+function renderBorrowTable(){
+
+    const tbody =
+    document.getElementById(
+        "borrowTable"
+    );
+
+    tbody.innerHTML = "";
+
+    borrowItems.forEach(
+    (item,index)=>{
+
+        tbody.innerHTML += `
+        <tr>
+
+            <td>${item.lot}</td>
+
+            <td>${item.location}</td>
+
+            <td>${item.qty}</td>
+
+            <td>
+
+                <button
+                class="btn btn-danger"
+                onclick="
+                removeBorrowItem(
+                ${index}
+                )">
+
+                ลบ
+
+                </button>
+
+            </td>
+
+        </tr>
+        `;
+
+    });
+
+}
+function removeBorrowItem(index){
+
+    borrowItems.splice(index,1);
+
+    renderBorrowTable();
+
+}
 
 
 
-
-
+    
     
 window.onload = async function () {
 
