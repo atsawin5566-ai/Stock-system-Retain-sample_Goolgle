@@ -1407,7 +1407,12 @@ function searchStock(){
     tbody.innerHTML = "";
 
     const filteredData =
-    stockData.filter(item =>
+    stockData
+    .map((item,index)=>({
+        ...item,
+        originalIndex:index
+    }))
+    .filter(item =>
 
         String(item.Lot || item.lot)
         .toUpperCase()
@@ -1419,33 +1424,45 @@ function searchStock(){
 
         tbody.innerHTML += `
         <tr>
+
             <td>${index+1}</td>
+
             <td>${item.PN}</td>
+
             <td>${item.Lot}</td>
+
             <td>${formatDate(item.Date)}</td>
+
             <td>${item.Qty}</td>
+
             <td>${item.Location}</td>
+
             <td>${item.MaterialType}</td>
+
             <td>
-                ${
-                    Number(item.Qty) > 0
-                    ? '<span class="status-ok">In Stock</span>'
-                    : '<span class="status-danger">Out Of Stock</span>'
-                }
+                ${getItemStatus(item)}
             </td>
+
             <td>
+
                 <button
                 class="btn btn-primary"
-                onclick="editItem(${index})">
+                onclick="editItem(${item.originalIndex})">
+
                 Edit
+
                 </button>
 
                 <button
                 class="btn btn-danger"
-                onclick="deleteItem(${index})">
+                onclick="deleteItem(${item.originalIndex})">
+
                 Delete
+
                 </button>
+
             </td>
+
         </tr>
         `;
 
