@@ -480,7 +480,7 @@ STATUS
 
     <div class="stat-card">
         <h2 id="totalLot">0</h2>
-        <p>Total Lot</p>
+        <p>Total In Stock</p>
     </div>
 
     <div class="stat-card">
@@ -1223,7 +1223,7 @@ function updateDashboard() {
 
     const data = stockData || [];
 
-    let totalLot = data.length;
+    let totalInStock = 0;
     let totalStockQty = 0;
     let expire30Days = 0;
     let expiredLot = 0;
@@ -1232,6 +1232,13 @@ function updateDashboard() {
     const today = new Date();
 
     data.forEach(item => {
+
+        const qty =
+Number(item.Qty || item.qty || 0);
+
+if(qty > 0){
+    totalInStock++;
+}
 
         const qty = Number(item.Qty || 0);
 
@@ -1268,7 +1275,7 @@ function updateDashboard() {
     });
 
     document.getElementById("totalLot").textContent =
-        totalLot;
+    totalInStock;
 
     document.getElementById("totalStockQty").textContent =
         totalStockQty.toLocaleString();
