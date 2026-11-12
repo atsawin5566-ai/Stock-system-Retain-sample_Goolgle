@@ -619,11 +619,27 @@ STATUS
 <input id="location" type="text" placeholder="Location">
 
 <select id="materialType">
-    <option value="">Material Type</option>
-    <option value="Final(FG)">Final(FG)</option>
-    <option value="Inprocess">Inprocess</option>
-    <option value="FG Tray">FG Tray</option>
-    <option value="Laser marking(FG)">Laser marking(FG)</option>
+
+    <option value="" selected disabled>
+        เลือก Material Type
+    </option>
+
+    <option value="Final(FG)">
+        Final(FG)
+    </option>
+
+    <option value="Inprocess">
+        Inprocess
+    </option>
+
+    <option value="FG Tray">
+        FG Tray
+    </option>
+
+    <option value="Laser marking(FG)">
+        Laser marking(FG)
+    </option>
+
 </select>
 
 <button
@@ -1018,12 +1034,28 @@ async function addItem(){
     const location = document.getElementById("location").value.trim();
     const materialType = document.getElementById("materialType").value;
 
-    if(!pn || !lot || !qty){
+if(
+    !pn ||
+    !lot ||
+    !date ||
+    !qty ||
+    !location ||
+    !materialType
+){
 
-        alert("กรุณากรอกข้อมูลให้ครบ");
-        return;
+    alert("❌ กรุณากรอกข้อมูลให้ครบทุกช่อง");
 
-    }
+    return;
+
+}
+if(Number(qty) <= 0){
+
+    alert("❌ Qty ต้องมากกว่า 0");
+
+    return;
+
+}
+    
     
 const duplicateLot = stockData.find((item,index) =>
 
