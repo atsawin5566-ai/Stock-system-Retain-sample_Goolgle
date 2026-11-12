@@ -547,7 +547,7 @@ STATUS
     </div>
 
     <div class="stat-card">
-        <h2 id="outOfStock">0</h2>
+        <h2 id="borrowedLot">0</h2>
         <p>Borrowed Lot</p>
     </div>
 
@@ -932,14 +932,27 @@ async function loadBorrowedLotCount(){
     try{
 
         const response =
-        await fetch(API_URL + "?sheet=BorrowHistory");
+        await fetch(
+            API_URL +
+            "?sheet=BorrowHistory"
+        );
 
         const borrowData =
         await response.json();
 
-        document.getElementById("outOfStock")
-        .textContent =
-        borrowData.length;
+        const borrowedLot =
+        borrowData.filter(item =>
+
+            item.Status === "Borrowed" ||
+
+            item.Status === "Partial Return"
+
+        ).length;
+
+        document.getElementById(
+            "borrowedLot"
+        ).textContent =
+        borrowedLot;
 
     }catch(error){
 
@@ -947,8 +960,7 @@ async function loadBorrowedLotCount(){
 
     }
 
-}    
-
+}
 
     
 /* =========================
