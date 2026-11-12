@@ -1328,24 +1328,51 @@ function addBorrowItem(){
         return;
 
     }
+const existingBorrowQty =
+borrowItems
+.filter(item => item.lot === lot)
+.reduce((sum,item)=>
+sum + Number(item.qty),
+0);
+
+if(existingBorrowQty + qty > currentQty){
+
+    alert(
+        `เบิกเกินจำนวนคงเหลือ\n` +
+        `คงเหลือ ${currentQty}\n` +
+        `เบิกไปแล้ว ${existingBorrowQty}`
+    );
+
+    return;
+}
+const existingItem =
+borrowItems.find(
+    item => item.lot === lot
+);
+
+if(existingItem){
+
+    existingItem.qty += qty;
+
+}else{
 
     borrowItems.push({
 
         lot:
-
         stockItem.Lot ||
         stockItem.lot,
 
-        qty:qty,
+        qty: qty,
 
         location:
-
         stockItem.Location ||
         stockItem.location,
 
-        borrower:borrower
+        borrower: borrower
 
     });
+
+}
 
     renderBorrowTable();
 
