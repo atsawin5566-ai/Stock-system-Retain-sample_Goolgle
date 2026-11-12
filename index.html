@@ -481,7 +481,21 @@ STATUS
 
     font-weight:600;
 }
+.status-borrowed{
 
+    background:#e5e7eb;
+
+    color:#374151;
+
+    padding:5px 12px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
     
 </style>
 </head>
@@ -940,14 +954,25 @@ async function loadBorrowedLotCount(){
         const borrowData =
         await response.json();
 
-        const borrowedLot =
-        borrowData.filter(item =>
+const uniqueLots =
+[
+    ...new Set(
+
+        borrowData
+        .filter(item =>
 
             item.Status === "Borrowed" ||
 
             item.Status === "Partial Return"
 
-        ).length;
+        )
+        .map(item => item.Lot)
+
+    )
+];
+
+const borrowedLot =
+uniqueLots.length;
 
         document.getElementById(
             "borrowedLot"
@@ -1081,7 +1106,7 @@ function getItemStatus(item){
 
     if(qty <= 0){
 
-        return '<span class="status-danger">Borrowed</span>';
+       return '<span class="status-borrowed">Borrowed</span>';
 
     }
 
