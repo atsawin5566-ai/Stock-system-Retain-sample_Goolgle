@@ -1426,8 +1426,14 @@ async function deleteItem(index){
 
     updateDashboard();
 
-    document.getElementById("saveMsg").innerHTML =
-    "✅ ลบข้อมูลสำเร็จ";
+document.getElementById("saveMsg").innerHTML =
+"✅ ลบข้อมูลสำเร็จ";
+
+setTimeout(() => {
+
+    document.getElementById("saveMsg").innerHTML = "";
+
+}, 3000);
 
 }
     
