@@ -797,11 +797,15 @@ async function addItem(){
 
     }
     
-const duplicateLot = stockData.find(item =>
+const duplicateLot = stockData.find((item,index) =>
+
+    index !== editIndex &&
+
     String(item.Lot || item.lot)
     .toUpperCase()
     ===
     lot.toUpperCase()
+
 );
 
 if(duplicateLot){
