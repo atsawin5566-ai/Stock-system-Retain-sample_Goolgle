@@ -404,9 +404,15 @@ TABLE
 ========================= */
 
 .table-container{
-    max-height:500px;
+
+    max-height:450px;
+
     overflow-y:auto;
+
     overflow-x:auto;
+
+    border-radius:12px;
+
 }
     
 thead th{
@@ -470,6 +476,33 @@ thead th{
     );
 
     color:white;
+
+}
+.table-container thead th{
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    background:
+    linear-gradient(
+        90deg,
+        #4f46e5,
+        #7c3aed
+    );
+
+    color: white;
+
+}
+table{
+
+    width:100%;
+
+    border-collapse:separate;
+
+    border-spacing:0;
 
 }
     
@@ -661,9 +694,6 @@ onclick="addItem()">
         <div class="card-title">
             🔍 ค้นหาข้อมูลชิ้นงาน
         </div>
-
-        <div class="table-container">
-
             
 <input
 id="search"
@@ -672,6 +702,8 @@ placeholder="ค้นหา Lot No."
 onkeyup="searchStock()">
 
             </div>
+        
+        <div class="table-container">
             
             <table>
             
