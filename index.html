@@ -899,7 +899,6 @@ async function saveToCloud(item){
 
     try{
 
-        const response =
         await fetch(API_URL,{
 
             method:"POST",
@@ -914,19 +913,18 @@ async function saveToCloud(item){
 
         });
 
-        console.log(
-            await response.text()
-        );
-
     }catch(error){
 
         console.error(error);
 
-        alert("บันทึกข้อมูลไม่สำเร็จ");
+        alert(
+            "❌ บันทึกข้อมูลไม่สำเร็จ"
+        );
 
     }
 
 }
+
     
 async function loadStockFromCloud(){
 
@@ -1059,119 +1057,156 @@ ADD ITEM
 
 async function addItem(){
 
-    const pn = document.getElementById("pn").value.trim();
-    const lot = document.getElementById("lot").value.trim();
-    const date = document.getElementById("date").value;
-    const qty = document.getElementById("qty").value;
-    const location = document.getElementById("location").value.trim();
-    const materialType = document.getElementById("materialType").value;
+    const pn =
+    document.getElementById("pn")
+    .value.trim();
 
-   console.log(
-    "materialType =",
-    materialType
-);
-console.log({
-    pn,
-    lot,
-    date,
-    qty,
-    location,
-    materialType
-});
-if(
-    pn.trim() === "" ||
-    lot.trim() === "" ||
-    date === "" ||
-    qty === "" ||
-    Number(qty) <= 0 ||
-    location.trim() === "" ||
-    materialType === ""
-){
+    const lot =
+    document.getElementById("lot")
+    .value.trim();
 
-    alert(
-        "❌ กรุณากรอกข้อมูลให้ครบทุกช่อง"
+    const date =
+    document.getElementById("date")
+    .value;
+
+    const qty =
+    document.getElementById("qty")
+    .value;
+
+    const location =
+    document.getElementById("location")
+    .value.trim();
+
+    const materialType =
+    document.getElementById("materialType")
+    .value;
+
+    // ตรวจสอบข้อมูลครบ
+
+    if(
+        pn.trim() === "" ||
+        lot.trim() === "" ||
+        date === "" ||
+        qty === "" ||
+        Number(qty) <= 0 ||
+        location.trim() === "" ||
+        materialType === ""
+    ){
+
+        alert(
+            "❌ กรุณากรอกข้อมูลให้ครบทุกช่อง"
+        );
+
+        return;
+
+    }
+
+    // ตรวจสอบ Lot ซ้ำ
+
+    const duplicateLot =
+    stockData.find((item,index)=>
+
+        index !== editIndex &&
+
+        String(item.Lot || item.lot)
+        .trim()
+        .toUpperCase()
+
+        ===
+
+        lot
+        .trim()
+        .toUpperCase()
+
     );
 
-    return;
+    if(duplicateLot){
 
-}
-if(Number(qty) <= 0){
+        alert(
+            "❌ Lot นี้มีอยู่ในระบบแล้ว\n\n" +
+            "Lot : " + lot
+        );
 
-    alert("❌ Qty ต้องมากกว่า 0");
+        return;
 
-    return;
+    }
 
-}
-    
-    
-const duplicateLot = stockData.find((item,index) =>
-
-    index !== editIndex &&
-
-    String(item.Lot || item.lot)
-    .toUpperCase()
-    ===
-    lot.toUpperCase()
-
-);
-
-if(duplicateLot){
-
-    alert("❌ Lot นี้มีอยู่ในระบบแล้ว");
-
-    return;
-}
-    
     const item = {
 
         pn,
+
         lot,
+
         date,
+
         qty,
+
         location,
+
         materialType,
-        status: qty > 0 ? "In Stock" : "Out Of Stock"
+
+        status:
+        Number(qty) > 0
+        ? "In Stock"
+        : "Borrowed"
 
     };
 
-if(editIndex === -1){
+    // เพิ่มรายการใหม่
 
-    await saveToCloud(item);
+    if(editIndex === -1){
 
-}else{
+        await saveToCloud(item);
 
-    const oldLot =
-    stockData[editIndex].Lot ||
-    stockData[editIndex].lot;
+    }else{
 
-    await updateToCloud(
-        oldLot,
-        item
-    );
+        const oldLot =
 
-    editIndex = -1;
+        stockData[editIndex].Lot ||
 
-    document.getElementById("saveBtn").innerText =
-    "บันทึก";
+        stockData[editIndex].lot;
 
-}
+        await updateToCloud(
+            oldLot,
+            item
+        );
 
-await loadStockFromCloud();
+        editIndex = -1;
 
-displayData();
+        document.getElementById(
+            "saveBtn"
+        ).innerText =
+        "บันทึก";
 
-updateDashboard();
+    }
 
-clearForm();
-    
-document.getElementById("saveMsg").innerHTML =
-"✅ บันทึกข้อมูลสำเร็จ";
+    // โหลดข้อมูลใหม่
 
-setTimeout(() => {
+    await loadStockFromCloud();
 
-    document.getElementById("saveMsg").innerHTML = "";
+    displayData();
 
-},3000);    
+    updateDashboard();
+
+    await loadBorrowedLotCount();
+
+    clearForm();
+
+    // ข้อความสำเร็จ
+
+    document.getElementById(
+        "saveMsg"
+    ).innerHTML =
+    "✅ บันทึกข้อมูลสำเร็จ";
+
+    setTimeout(()=>{
+
+        document.getElementById(
+            "saveMsg"
+        ).innerHTML = "";
+
+    },3000);
+
 }
     
 function formatDate(dateString){
