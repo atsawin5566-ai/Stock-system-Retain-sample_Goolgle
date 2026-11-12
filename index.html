@@ -1172,18 +1172,17 @@ function displayData(){
     const tbody =
     document.getElementById("stockTable");
 
-tbody.innerHTML = "";
+    tbody.innerHTML = "";
 
-const sortedData =
-[...stockData].sort(
-    (a,b)=>
-    new Date(b.Date || b.date)
-    -
-    new Date(a.Date || a.date)
-);
+    const sortedData =
+    [...stockData]
+    .map((item,index)=>({
+        ...item,
+        originalIndex:index
+    }))
+    .reverse();
 
-sortedData.forEach((item,index)=>{
-
+    sortedData.forEach((item,index)=>{
 
         tbody.innerHTML += `
 
@@ -1191,32 +1190,27 @@ sortedData.forEach((item,index)=>{
 
             <td>${index+1}</td>
 
-           <td>${item.PN}</td>
+            <td>${item.PN}</td>
 
-           <td>${item.Lot}</td>
+            <td>${item.Lot}</td>
 
-           <td>${formatDate(item.Date)}</td>
+            <td>${formatDate(item.Date)}</td>
 
-           <td>${item.Qty}</td>
+            <td>${item.Qty}</td>
 
-           <td>${item.Location}</td>
+            <td>${item.Location}</td>
 
-           <td>${item.MaterialType}</td>
+            <td>${item.MaterialType}</td>
 
             <td>
-
-${
-    getItemStatus(item)
-}
-
-
+                ${getItemStatus(item)}
             </td>
 
             <td>
 
                 <button
                 class="btn btn-primary"
-                onclick="editItem(${index})">
+                onclick="editItem(${item.originalIndex})">
 
                 Edit
 
@@ -1224,7 +1218,7 @@ ${
 
                 <button
                 class="btn btn-danger"
-                onclick="deleteItem(${index})">
+                onclick="deleteItem(${item.originalIndex})">
 
                 Delete
 
