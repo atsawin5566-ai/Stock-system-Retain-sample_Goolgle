@@ -1397,9 +1397,57 @@ function renderBorrowTable(){
         </tr>
         `;
 
+    });   
+}
+
+async function borrowAll(){
+
+    if(borrowItems.length === 0){
+
+        alert("ไม่มีรายการเบิก");
+
+        return;
+
+    }
+
+    const borrower =
+    borrowItems[0].borrower;
+
+    const docNo =
+    "BOR-" + Date.now();
+
+    const dateTime =
+    new Date().toLocaleString("th-TH");
+
+    await borrowToCloud({
+
+        docNo: docNo,
+
+        dateTime: dateTime,
+
+        borrower: borrower,
+
+        items: borrowItems
+
     });
 
+    await loadStockFromCloud();
+
+    displayData();
+
+    updateDashboard();
+
+    borrowItems = [];
+
+    renderBorrowTable();
+
+    alert(
+        "✅ เบิกสินค้าสำเร็จ\nเลขที่เอกสาร : "
+        + docNo
+    );
+
 }
+    
 function removeBorrowItem(index){
 
     borrowItems.splice(index,1);
