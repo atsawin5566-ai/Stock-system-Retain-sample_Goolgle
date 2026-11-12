@@ -953,27 +953,19 @@ async function loadBorrowedLotCount(){
 
         const borrowData =
         await response.json();
-        console.log(borrowData);
 
-const uniqueLots =
-[
-    ...new Set(
+        console.log("BorrowHistory", borrowData);
 
-        borrowData
-        .filter(item =>
+        const borrowedLot =
+        borrowData.filter(item =>
 
-            item.Status === "Borrowed" ||
+            item.Status &&
+            (
+                item.Status === "Borrowed" ||
+                item.Status === "Partial Return"
+            )
 
-            item.Status === "Partial Return"
-
-        )
-        .map(item => item.Lot)
-
-    )
-];
-
-const borrowedLot =
-uniqueLots.length;
+        ).length;
 
         document.getElementById(
             "borrowedLot"
@@ -987,7 +979,6 @@ uniqueLots.length;
     }
 
 }
-
     
 /* =========================
 ADD ITEM
