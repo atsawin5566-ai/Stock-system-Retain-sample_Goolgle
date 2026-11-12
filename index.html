@@ -565,7 +565,7 @@ onclick="addItem()">
 <input
 id="search"
 type="text"
-placeholder="ค้นหา PN หรือ Lot"
+placeholder="ค้นหา Lot No."
 onkeyup="searchStock()">
 
             </div>
@@ -1046,21 +1046,58 @@ SEARCH
 function searchStock(){
 
     const keyword =
-    document.getElementById("search").value
-    .toLowerCase();
+    document.getElementById("search")
+    .value
+    .trim()
+    .toUpperCase();
 
-    const rows =
-    document.querySelectorAll("#stockTable tr");
+    const tbody =
+    document.getElementById("stockTable");
 
-    rows.forEach(row=>{
+    tbody.innerHTML = "";
 
-        const text =
-        row.innerText.toLowerCase();
+    const filteredData =
+    stockData.filter(item =>
 
-        row.style.display =
-        text.includes(keyword)
-        ? ""
-        : "none";
+        String(item.Lot || item.lot)
+        .toUpperCase()
+        .includes(keyword)
+
+    );
+
+    filteredData.forEach((item,index)=>{
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${index+1}</td>
+            <td>${item.PN}</td>
+            <td>${item.Lot}</td>
+            <td>${formatDate(item.Date)}</td>
+            <td>${item.Qty}</td>
+            <td>${item.Location}</td>
+            <td>${item.MaterialType}</td>
+            <td>
+                ${
+                    Number(item.Qty) > 0
+                    ? '<span class="status-ok">In Stock</span>'
+                    : '<span class="status-danger">Out Of Stock</span>'
+                }
+            </td>
+            <td>
+                <button
+                class="btn btn-primary"
+                onclick="editItem(${index})">
+                Edit
+                </button>
+
+                <button
+                class="btn btn-danger"
+                onclick="deleteItem(${index})">
+                Delete
+                </button>
+            </td>
+        </tr>
+        `;
 
     });
 
