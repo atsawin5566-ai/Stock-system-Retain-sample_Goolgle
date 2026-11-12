@@ -1253,13 +1253,18 @@ function displayData(){
 
     tbody.innerHTML = "";
 
-    const sortedData =
-    [...stockData]
-    .map((item,index)=>({
-        ...item,
-        originalIndex:index
-    }))
-    .reverse();
+const sortedData =
+[...stockData]
+.map((item,index)=>({
+    ...item,
+    originalIndex:index
+}))
+.sort(
+    (a,b)=>
+    new Date(b.Date || b.date)
+    -
+    new Date(a.Date || a.date)
+);
 
     sortedData.forEach((item,index)=>{
 
@@ -1418,6 +1423,12 @@ function searchStock(){
         .toUpperCase()
         .includes(keyword)
 
+    )
+    .sort(
+        (a,b)=>
+        new Date(b.Date || b.date)
+        -
+        new Date(a.Date || a.date)
     );
 
     filteredData.forEach((item,index)=>{
