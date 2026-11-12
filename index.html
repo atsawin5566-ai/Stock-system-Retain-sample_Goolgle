@@ -1034,16 +1034,21 @@ async function addItem(){
     const location = document.getElementById("location").value.trim();
     const materialType = document.getElementById("materialType").value;
 
+    console.log(materialType);
+
 if(
-    !pn ||
-    !lot ||
-    !date ||
-    !qty ||
-    !location ||
-    !materialType
+    pn.trim() === "" ||
+    lot.trim() === "" ||
+    date === "" ||
+    qty === "" ||
+    Number(qty) <= 0 ||
+    location.trim() === "" ||
+    materialType === ""
 ){
 
-    alert("❌ กรุณากรอกข้อมูลให้ครบทุกช่อง");
+    alert(
+        "❌ กรุณากรอกข้อมูลให้ครบทุกช่อง"
+    );
 
     return;
 
