@@ -735,7 +735,47 @@ async function loadStockFromCloud(){
     }
 
 }
+async function deleteFromCloud(lot){
 
+    await fetch(API_URL,{
+
+        method:"POST",
+
+        body:JSON.stringify({
+
+            action:"delete",
+
+            lot:lot
+
+        })
+
+    });
+
+}
+async function updateToCloud(
+    oldLot,
+    item
+){
+
+    await fetch(API_URL,{
+
+        method:"POST",
+
+        body:JSON.stringify({
+
+            action:"update",
+
+            oldLot:oldLot,
+
+            ...item
+
+        })
+
+    });
+
+}
+
+    
     
 /* =========================
 ADD ITEM
@@ -789,10 +829,22 @@ if(editIndex === -1){
 
 }else{
 
-    stockData[editIndex] = item;
+    const oldLot =
+    stockData[editIndex].Lot ||
+    stockData[editIndex].lot;
+
+    await updateToCloud(
+        oldLot,
+        item
+    );
+
+    editIndex = -1;
+
+    document.getElementById("saveBtn").innerText =
+    "บันทึก";
 
 }
-    
+
 await loadStockFromCloud();
 
 displayData();
@@ -896,22 +948,22 @@ function editItem(index){
     stockData[index];
 
     document.getElementById("pn").value =
-    item.pn;
+    item.PN || item.pn;
 
     document.getElementById("lot").value =
-    item.lot;
+    item.Lot || item.lot;
 
     document.getElementById("date").value =
-    item.date;
+    item.Date || item.date;
 
     document.getElementById("qty").value =
-    item.qty;
+    item.Qty || item.qty;
 
     document.getElementById("location").value =
-    item.location;
+    item.Location || item.location;
 
     document.getElementById("materialType").value =
-    item.materialType;
+    item.MaterialType || item.materialType;
 
     editIndex = index;
 
@@ -924,18 +976,29 @@ function editItem(index){
 DELETE
 ========================= */
 
-function deleteItem(index){
+async function deleteItem(index){
 
-    if(!confirm("ยืนยันการลบข้อมูล ?")){
+    if(!confirm("ลบข้อมูลใช่หรือไม่ ?")){
         return;
     }
 
-    stockData.splice(index,1);
+    const item = stockData[index];
+
+    await deleteFromCloud(
+        item.Lot || item.lot
+    );
+
+    await loadStockFromCloud();
 
     displayData();
 
-}
+    updateDashboard();
 
+    document.getElementById("saveMsg").innerHTML =
+    "✅ ลบข้อมูลสำเร็จ";
+
+}
+    
 /* =========================
 CLEAR FORM
 ========================= */
