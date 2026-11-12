@@ -1261,9 +1261,12 @@ const sortedData =
 }))
 .sort(
     (a,b)=>
-    new Date(b.Date || b.date)
-    -
-    new Date(a.Date || a.date)
+    new Date(
+        b.CreateDateTime
+    ) -
+    new Date(
+        a.CreateDateTime
+    )
 );
 
     sortedData.forEach((item,index)=>{
@@ -1411,25 +1414,28 @@ function searchStock(){
 
     tbody.innerHTML = "";
 
-    const filteredData =
-    stockData
-    .map((item,index)=>({
-        ...item,
-        originalIndex:index
-    }))
-    .filter(item =>
+const filteredData =
+stockData
+.map((item,index)=>({
+    ...item,
+    originalIndex:index
+}))
+.filter(item =>
 
-        String(item.Lot || item.lot)
-        .toUpperCase()
-        .includes(keyword)
+    String(item.Lot || item.lot)
+    .toUpperCase()
+    .includes(keyword)
 
+)
+.sort(
+    (a,b)=>
+    new Date(
+        b.CreateDateTime
+    ) -
+    new Date(
+        a.CreateDateTime
     )
-    .sort(
-        (a,b)=>
-        new Date(b.Date || b.date)
-        -
-        new Date(a.Date || a.date)
-    );
+);
 
     filteredData.forEach((item,index)=>{
 
