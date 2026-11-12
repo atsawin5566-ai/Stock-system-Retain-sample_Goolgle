@@ -1034,8 +1034,18 @@ async function addItem(){
     const location = document.getElementById("location").value.trim();
     const materialType = document.getElementById("materialType").value;
 
-    console.log(materialType);
-
+   console.log(
+    "materialType =",
+    materialType
+);
+console.log({
+    pn,
+    lot,
+    date,
+    qty,
+    location,
+    materialType
+});
 if(
     pn.trim() === "" ||
     lot.trim() === "" ||
