@@ -9,6 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+
+    
+
 <style>
 
 *{
@@ -276,6 +279,10 @@ DASHBOARD
     font-weight:bold;
     color:#16a34a;
 }
+
+
+
+
     
 /* =========================
 CARD
@@ -447,7 +454,25 @@ tbody tr:hover{
 
     background:#f8faff;
 }
+thead th{
 
+    position:sticky;
+
+    top:0;
+
+    z-index:10;
+
+    background:
+    linear-gradient(
+    90deg,
+    #4f46e5,
+    #7c3aed
+    );
+
+    color:white;
+
+}
+    
 /* =========================
 STATUS
 ========================= */
@@ -1149,11 +1174,16 @@ function displayData(){
 
 tbody.innerHTML = "";
 
-const sortedData = [...stockData].sort((a,b)=>
-    new Date(b.date) - new Date(a.date)
+const sortedData =
+[...stockData].sort(
+    (a,b)=>
+    new Date(b.Date || b.date)
+    -
+    new Date(a.Date || a.date)
 );
 
 sortedData.forEach((item,index)=>{
+
 
         tbody.innerHTML += `
 
