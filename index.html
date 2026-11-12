@@ -1154,6 +1154,14 @@ async function addItem(){
 
     // เพิ่มรายการใหม่
 
+    const saveBtn =
+document.getElementById("saveBtn");
+
+saveBtn.disabled = true;
+
+saveBtn.innerText =
+"กำลังบันทึก...";
+    
     if(editIndex === -1){
 
         await saveToCloud(item);
@@ -1177,6 +1185,7 @@ async function addItem(){
             "saveBtn"
         ).innerText =
         "บันทึก";
+        
 
     }
 
@@ -1191,6 +1200,11 @@ async function addItem(){
     await loadBorrowedLotCount();
 
     clearForm();
+    
+    saveBtn.disabled = false;
+
+    saveBtn.innerText =
+    "บันทึก";
 
     // ข้อความสำเร็จ
 
