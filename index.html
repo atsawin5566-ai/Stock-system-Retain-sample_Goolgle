@@ -833,7 +833,97 @@ onkeyup="searchStock()">
         เบิกสินค้าทั้งหมด
 
         </button>
+        
+<div class="card">
 
+    <div class="card-title">
+        📄 ใบเบิกสินค้า
+    </div>
+
+    <div id="borrowSlip">
+
+        <p>
+            <strong>เลขที่เอกสาร :</strong>
+            <span id="docNo"></span>
+        </p>
+
+        <p>
+            <strong>วันที่ :</strong>
+            <span id="docDate"></span>
+        </p>
+
+        <p>
+            <strong>ผู้เบิก :</strong>
+            <span id="docBorrower"></span>
+        </p>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>No.</th>
+
+                    <th>Lot</th>
+
+                    <th>Location</th>
+
+                    <th>Qty</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="slipTable">
+
+            </tbody>
+
+        </table>
+
+        <br>
+
+        <table>
+
+            <tr>
+
+                <td align="center">
+                    ผู้เบิก
+                    <br><br><br>
+                    ___________________
+                </td>
+
+                <td align="center">
+                    ผู้จ่าย
+                    <br><br><br>
+                    ___________________
+                </td>
+
+                <td align="center">
+                    ผู้อนุมัติ
+                    <br><br><br>
+                    ___________________
+                </td>
+
+            </tr>
+
+        </table>
+
+        <br>
+
+        <button
+        class="btn btn-primary"
+        onclick="printBorrowSlip()">
+
+        🖨️ พิมพ์ใบเบิก
+
+        </button>
+
+    </div>
+
+</div>
+
+        
     </div>
 
 </div>
