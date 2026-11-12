@@ -862,7 +862,28 @@ setTimeout(() => {
 
 },3000);    
 }
+    
+function formatDate(dateString){
 
+    if(!dateString) return "";
+
+    const date = new Date(dateString);
+
+    const year = date.getFullYear();
+
+    const month =
+    String(date.getMonth()+1)
+    .padStart(2,"0");
+
+    const day =
+    String(date.getDate())
+    .padStart(2,"0");
+
+    return `${year}-${month}-${day}`;
+
+}
+
+    
 /* =========================
 DISPLAY
 ========================= */
@@ -890,7 +911,7 @@ sortedData.forEach((item,index)=>{
 
            <td>${item.Lot}</td>
 
-           <td>${item.Date}</td>
+           <td>${formatDate(item.Date)}</td>
 
            <td>${item.Qty}</td>
 
@@ -954,7 +975,7 @@ function editItem(index){
     item.Lot || item.lot;
 
     document.getElementById("date").value =
-    item.Date || item.date;
+    formatDate(item.Date || item.date);
 
     document.getElementById("qty").value =
     item.Qty || item.qty;
