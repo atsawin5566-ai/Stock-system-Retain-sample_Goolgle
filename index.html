@@ -85,7 +85,17 @@ body{
 .out-stock h2{
     color:#374151;  /* เทาเข้ม */
 }
-    
+.overdue-return h2{
+    color:#b91c1c;
+
+}
+.overdue-return{
+    border-left:6px solid #b91c1c;
+
+}   
+
+
+
     
 /* =========================
 SIDEBAR
@@ -628,6 +638,12 @@ STATUS
         <h2 id="borrowedLot">0</h2>
         <p>Borrowed Lot</p>
     </div>
+
+    <div class="stat-card overdue-return">
+    <h2 id="overdueReturn">0</h2>
+    <p>Overdue Return</p>
+
+</div>
 
 </div>
         
@@ -2216,6 +2232,7 @@ async function borrowAll(){
 
         await loadStockFromCloud();
         await loadBorrowHistory();
+        updateOverdueReturn();
 
         displayData();
 
@@ -2521,6 +2538,7 @@ async function returnAll(){
 
         await loadStockFromCloud();
         await loadBorrowHistory();
+        updateOverdueReturn();
 
         displayData();
 
@@ -2744,6 +2762,52 @@ function displayReturnHistory(){
     tbody.innerHTML = html;
 
 }    
+function updateOverdueReturn(){
+
+    const today =
+    new Date();
+
+    let overdueCount = 0;
+
+    borrowHistoryData.forEach(item => {
+
+        if(
+
+            item.Status === "Borrowed" ||
+
+            item.Status === "Partial Return"
+
+        ){
+
+            const borrowDate =
+            new Date(item.DateTime);
+
+            const diffDays =
+            Math.floor(
+
+                (today - borrowDate) /
+
+                (1000 * 60 * 60 * 24)
+
+            );
+
+            if(diffDays > 14){
+
+                overdueCount++;
+
+            }
+
+        }
+
+    });
+
+    document.getElementById(
+        "overdueReturn"
+    ).textContent =
+    overdueCount;
+
+}
+
     
 window.onload = async function(){
 
@@ -2760,6 +2824,8 @@ window.onload = async function(){
     displayReturnHistory();
 
     updateDashboard();
+
+    updateOverdueReturn();
 
     await loadBorrowedLotCount();
 
