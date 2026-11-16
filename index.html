@@ -1046,11 +1046,64 @@ onclick="printBorrowSlip()">
 <div id="historyPage" class="page">
 
     <div class="card">
+
         <div class="card-title">
-            📜 History
+            📚 Borrow History
         </div>
 
-        <p>หน้าจอประวัติการเบิก-คืน</p>
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Doc No</th>
+                    <th>Date</th>
+                    <th>Borrower</th>
+                    <th>Lot</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="borrowHistoryTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+            📥 Return History
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Return No</th>
+                    <th>Date</th>
+                    <th>Returner</th>
+                    <th>Lot</th>
+                    <th>Qty</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="returnHistoryTable">
+
+            </tbody>
+
+        </table>
+
     </div>
 
 </div>
@@ -1082,7 +1135,8 @@ const API_URL =
 let stockData = [];
 let borrowItems = [];
 let returnItems = [];  
-let borrowHistoryData = [];    
+let borrowHistoryData = [];
+let returnHistoryData = [];    
     
 let editIndex = -1;
     
@@ -1161,7 +1215,32 @@ async function loadBorrowHistory(){
     }
 
 }
+async function loadReturnHistory(){
 
+    try{
+
+        const response =
+        await fetch(
+            API_URL +
+            "?sheet=ReturnHistory"
+        );
+
+        returnHistoryData =
+        await response.json();
+
+        console.log(
+            "ReturnHistory",
+            returnHistoryData
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+    
     
 async function deleteFromCloud(lot){
 
@@ -2474,8 +2553,76 @@ async function returnAll(){
     }
 
 }
+function displayBorrowHistory(){
 
-    
+    const tbody =
+    document.getElementById(
+        "borrowHistoryTable"
+    );
+
+    let html = "";
+
+    borrowHistoryData.forEach(item => {
+
+        html += `
+
+        <tr>
+
+            <td>${item.DocNo}</td>
+
+            <td>${item.DateTime}</td>
+
+            <td>${item.Borrower}</td>
+
+            <td>${item.Lot}</td>
+
+            <td>${item.Qty}</td>
+
+            <td>${item.Status}</td>
+
+        </tr>
+
+        `;
+
+    });
+
+    tbody.innerHTML = html;
+
+}
+function displayReturnHistory(){
+
+    const tbody =
+    document.getElementById(
+        "returnHistoryTable"
+    );
+
+    let html = "";
+
+    returnHistoryData.forEach(item => {
+
+        html += `
+
+        <tr>
+
+            <td>${item.ReturnNo}</td>
+
+            <td>${item.DateTime}</td>
+
+            <td>${item.Returner}</td>
+
+            <td>${item.Lot}</td>
+
+            <td>${item.Qty}</td>
+
+        </tr>
+
+        `;
+
+    });
+
+    tbody.innerHTML = html;
+
+}    
     
 window.onload = async function(){
 
@@ -2483,14 +2630,19 @@ window.onload = async function(){
 
     await loadBorrowHistory();
 
+    await loadReturnHistory();
+
     displayData();
+
+    displayBorrowHistory();
+
+    displayReturnHistory();
 
     updateDashboard();
 
     await loadBorrowedLotCount();
 
 };
-
 
     
 </script>
