@@ -1086,7 +1086,13 @@ onkeyup="searchBorrowHistory()">
         <div class="card-title">
             📥 Return History
         </div>
+    <input
+id="returnHistorySearch"
+type="text"
+placeholder="ค้นหา Lot, Returner หรือ Return No"
+onkeyup="searchReturnHistory()">
 
+        
         <table>
 
             <thead>
@@ -2594,6 +2600,116 @@ function displayBorrowHistory(){
     tbody.innerHTML = html;
 
 }
+function searchBorrowHistory(){
+
+    const keyword =
+    document.getElementById(
+        "borrowHistorySearch"
+    ).value
+    .toUpperCase();
+
+    const tbody =
+    document.getElementById(
+        "borrowHistoryTable"
+    );
+
+    let html = "";
+
+    borrowHistoryData
+    .filter(item =>
+
+        String(item.DocNo)
+        .toUpperCase()
+        .includes(keyword)
+
+        ||
+
+        String(item.Lot)
+        .toUpperCase()
+        .includes(keyword)
+
+        ||
+
+        String(item.Borrower)
+        .toUpperCase()
+        .includes(keyword)
+
+    )
+    .forEach(item => {
+
+        html += `
+        <tr>
+
+            <td>${item.DocNo}</td>
+            <td>${item.DateTime}</td>
+            <td>${item.Borrower}</td>
+            <td>${item.Lot}</td>
+            <td>${item.Qty}</td>
+            <td>${item.Status}</td>
+
+        </tr>
+        `;
+
+    });
+
+    tbody.innerHTML = html;
+
+}
+function searchReturnHistory(){
+
+    const keyword =
+    document.getElementById(
+        "returnHistorySearch"
+    ).value
+    .toUpperCase();
+
+    const tbody =
+    document.getElementById(
+        "returnHistoryTable"
+    );
+
+    let html = "";
+
+    returnHistoryData
+    .filter(item =>
+
+        String(item.ReturnNo || "")
+        .toUpperCase()
+        .includes(keyword)
+
+        ||
+
+        String(item.Lot || "")
+        .toUpperCase()
+        .includes(keyword)
+
+        ||
+
+        String(item.Returner || "")
+        .toUpperCase()
+        .includes(keyword)
+
+    )
+    .forEach(item => {
+
+        html += `
+        <tr>
+
+            <td>${item.ReturnNo}</td>
+            <td>${item.DateTime}</td>
+            <td>${item.Returner}</td>
+            <td>${item.Lot}</td>
+            <td>${item.Qty}</td>
+
+        </tr>
+        `;
+
+    });
+
+    tbody.innerHTML = html;
+
+}
+    
 function displayReturnHistory(){
 
     const tbody =
