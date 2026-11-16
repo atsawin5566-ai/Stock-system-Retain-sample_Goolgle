@@ -2272,7 +2272,98 @@ function addReturnItem(){
     ).value = "";
 
 }
+async function returnAll(){
 
+    if(returnItems.length === 0){
+
+        alert("ไม่มีรายการคืน");
+
+        return;
+
+    }
+
+    const returnBtn =
+    document.querySelector(
+        'button[onclick="returnAll()"]'
+    );
+
+    returnBtn.disabled = true;
+
+    returnBtn.innerText =
+    "กำลังบันทึกรายการคืน...";
+
+    document.getElementById(
+        "returnMsg"
+    ).innerHTML =
+    "⏳ กำลังบันทึกรายการคืน...";
+
+    try{
+
+        const returner =
+        returnItems[0].returner;
+
+        const docNo =
+        "RET-" + Date.now();
+
+        const dateTime =
+        new Date().toLocaleString("th-TH");
+
+        await returnToCloud({
+
+            docNo: docNo,
+
+            dateTime: dateTime,
+
+            returner: returner,
+
+            items: returnItems
+
+        });
+
+        await loadStockFromCloud();
+
+        displayData();
+
+        updateDashboard();
+
+        await loadBorrowedLotCount();
+
+        returnItems = [];
+
+        renderReturnTable();
+
+        document.getElementById(
+            "returnMsg"
+        ).innerHTML =
+        "✅ คืนสินค้าสำเร็จ";
+
+        setTimeout(()=>{
+
+            document.getElementById(
+                "returnMsg"
+            ).innerHTML = "";
+
+        },5000);
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById(
+            "returnMsg"
+        ).innerHTML =
+        "❌ คืนสินค้าไม่สำเร็จ";
+
+    }finally{
+
+        returnBtn.disabled = false;
+
+        returnBtn.innerText =
+        "คืนสินค้าทั้งหมด";
+
+    }
+
+}
 
     
     
