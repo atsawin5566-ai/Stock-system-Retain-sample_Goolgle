@@ -892,41 +892,68 @@ onkeyup="searchStock()">
 
         <br>
 
-        <table>
+<table>
 
-            <tr>
+    <tr>
 
-                <td align="center">
-                    ผู้เบิก
-                    <br><br><br>
-                    ___________________
-                </td>
+        <td align="center">
+            ผู้เบิก
+            <br><br><br>
+            ___________________
+        </td>
 
-                <td align="center">
-                    ผู้จ่าย
-                    <br><br><br>
-                    ___________________
-                </td>
+        <td align="center">
+            ผู้จ่าย
+            <br><br><br>
+            ___________________
+        </td>
 
-                <td align="center">
-                    ผู้อนุมัติ
-                    <br><br><br>
-                    ___________________
-                </td>
+        <td align="center">
+            ผู้อนุมัติ
+            <br><br><br>
+            ___________________
+        </td>
 
-            </tr>
+    </tr>
 
-        </table>
+</table>
 
-        <br>
+<br>
 
-        <button
-        class="btn btn-primary"
-        onclick="printBorrowSlip()">
+<div
+style="
+padding:10px;
+border:1px solid #dc2626;
+background:#fef2f2;
+color:#991b1b;
+border-radius:8px;
+font-size:13px;
+line-height:1.6;
+">
 
-        🖨️ พิมพ์ใบเบิก
+<strong>หมายเหตุ :</strong>
 
-        </button>
+ผู้เบิกชิ้นงานออกจากพื้นที่ต้องดำเนินการส่งคืนชิ้นงาน
+ภายใน <strong>14 วันทำการ</strong>
+นับจากวันที่เบิก
+
+หากมีความจำเป็นต้องใช้งานต่อเกินระยะเวลาที่กำหนด
+กรุณาแจ้งผู้ควบคุมพื้นที่หรือผู้รับผิดชอบก่อนครบกำหนด
+
+(อ้างอิงเอกสาร
+<strong>CHB2000-F750</strong>)
+
+</div>
+
+<br>
+
+<button
+class="btn btn-primary"
+onclick="printBorrowSlip()">
+
+🖨️ พิมพ์ใบเบิก
+
+</button>
 
     </div>
 
