@@ -1909,6 +1909,54 @@ async function borrowAll(){
         const dateTime =
         new Date().toLocaleString("th-TH");
 
+        // แสดงข้อมูลใบเบิก
+
+        document.getElementById(
+            "docNo"
+        ).textContent =
+        docNo;
+
+        document.getElementById(
+            "docDate"
+        ).textContent =
+        dateTime;
+
+        document.getElementById(
+            "docBorrower"
+        ).textContent =
+        borrower;
+
+        // แสดงรายการในใบเบิก
+
+        let slipHtml = "";
+
+        borrowItems.forEach((item,index)=>{
+
+            slipHtml += `
+
+            <tr>
+
+                <td>${index + 1}</td>
+
+                <td>${item.lot}</td>
+
+                <td>${item.location}</td>
+
+                <td>${item.qty}</td>
+
+            </tr>
+
+            `;
+
+        });
+
+        document.getElementById(
+            "slipTable"
+        ).innerHTML =
+        slipHtml;
+
+        // บันทึกเข้า Google Sheet
+
         await borrowToCloud({
 
             docNo: docNo,
@@ -1920,7 +1968,10 @@ async function borrowAll(){
             items: borrowItems
 
         });
-        console.log("ผ่าน borrowToCloud");
+
+        console.log(
+            "ผ่าน borrowToCloud"
+        );
 
         await loadStockFromCloud();
 
@@ -1937,7 +1988,8 @@ async function borrowAll(){
         document.getElementById(
             "borrowMsg"
         ).innerHTML =
-        "✅ บันทึกรายการเบิกสำเร็จ";
+        "✅ บันทึกรายการเบิกสำเร็จ เลขที่เอกสาร : " +
+        docNo;
 
         setTimeout(()=>{
 
@@ -1945,7 +1997,7 @@ async function borrowAll(){
                 "borrowMsg"
             ).innerHTML = "";
 
-        },3000);
+        },5000);
 
     }catch(error){
 
