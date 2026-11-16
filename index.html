@@ -970,11 +970,74 @@ onclick="printBorrowSlip()">
 <div id="returnPage" class="page">
 
     <div class="card">
+
         <div class="card-title">
-            📥 Return
+            📥 คืนสินค้า
         </div>
 
-        <p>หน้าจอคืนสินค้า</p>
+        <div class="form-grid">
+
+            <input
+            id="returnLot"
+            type="text"
+            placeholder="Lot No">
+
+            <input
+            id="returnQty"
+            type="number"
+            placeholder="จำนวนคืน">
+
+            <input
+            id="returner"
+            type="text"
+            placeholder="ผู้คืน">
+
+            <button
+            class="btn btn-primary"
+            onclick="addReturnItem()">
+
+            เพิ่มรายการคืน
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Lot</th>
+                    <th>Qty</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="returnTable">
+
+            </tbody>
+
+        </table>
+
+        <br>
+
+        <button
+        class="btn btn-success"
+        onclick="returnAll()">
+
+        คืนสินค้าทั้งหมด
+
+        </button>
+
+        <div id="returnMsg"></div>
+
     </div>
 
 </div>
@@ -1018,6 +1081,7 @@ const API_URL =
     
 let stockData = [];
 let borrowItems = [];
+let returnItems = [];    
     
 let editIndex = -1;
     
@@ -2107,6 +2171,105 @@ function printBorrowSlip(){
     printWindow.document.close();
 
     printWindow.print();
+
+}
+function renderReturnTable(){
+
+    const tbody =
+    document.getElementById(
+        "returnTable"
+    );
+
+    let html = "";
+
+    returnItems.forEach((item,index)=>{
+
+        html += `
+
+        <tr>
+
+            <td>${item.lot}</td>
+
+            <td>${item.qty}</td>
+
+            <td>
+
+                <button
+                class="btn btn-danger"
+                onclick="removeReturnItem(${index})">
+
+                ลบ
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+    tbody.innerHTML = html;
+
+}
+function removeReturnItem(index){
+
+    returnItems.splice(index,1);
+
+    renderReturnTable();
+
+}
+function addReturnItem(){
+
+    const lot =
+    document.getElementById(
+        "returnLot"
+    ).value.trim();
+
+    const qty =
+    Number(
+        document.getElementById(
+            "returnQty"
+        ).value
+    );
+
+    const returner =
+    document.getElementById(
+        "returner"
+    ).value.trim();
+
+    if(
+        !lot ||
+        !qty ||
+        !returner
+    ){
+
+        alert(
+            "กรุณากรอกข้อมูลให้ครบ"
+        );
+
+        return;
+
+    }
+
+    returnItems.push({
+
+        lot,
+        qty,
+        returner
+
+    });
+
+    renderReturnTable();
+
+    document.getElementById(
+        "returnLot"
+    ).value = "";
+
+    document.getElementById(
+        "returnQty"
+    ).value = "";
 
 }
 
