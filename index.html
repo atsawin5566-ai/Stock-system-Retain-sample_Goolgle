@@ -2265,6 +2265,54 @@ function addReturnItem(){
             "returnQty"
         ).value
     );
+   const borrowRecord =
+borrowHistoryData.find(item =>
+
+    String(item.Lot)
+    .toUpperCase()
+    ===
+    lot.toUpperCase()
+
+    &&
+
+    (
+        item.Status === "Borrowed" ||
+        item.Status === "Partial Return"
+    )
+
+);
+
+if(!borrowRecord){
+
+    alert(
+        "❌ ไม่พบ Lot นี้ในรายการที่ถูกเบิก"
+    );
+
+    return;
+
+}
+
+const borrowQty =
+Number(borrowRecord.Qty);
+
+const returnedQty =
+Number(
+    borrowRecord.ReturnQty || 0
+);
+
+const remainQty =
+borrowQty - returnedQty;
+
+if(qty > remainQty){
+
+    alert(
+        `❌ คืนได้สูงสุด ${remainQty} ชิ้น`
+    );
+
+    return;
+
+}
+    
 
     const returner =
     document.getElementById(
@@ -2384,7 +2432,7 @@ async function returnAll(){
         document.getElementById(
             "returnMsg"
         ).innerHTML =
-        "❌ คืนสินค้าไม่สำเร็จ";
+        "❌ " + error.message;
 
     }finally{
 
