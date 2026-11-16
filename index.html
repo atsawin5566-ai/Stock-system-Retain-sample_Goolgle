@@ -2027,7 +2027,61 @@ function removeBorrowItem(index){
     renderBorrowTable();
 
 }
+function printBorrowSlip(){
 
+    const printContents =
+    document.getElementById(
+        "borrowSlip"
+    ).innerHTML;
+
+    const printWindow =
+    window.open(
+        "",
+        "",
+        "width=900,height=700"
+    );
+
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>ใบเบิกสินค้า</title>
+
+            <style>
+
+                body{
+                    font-family:Arial;
+                    padding:20px;
+                }
+
+                table{
+                    width:100%;
+                    border-collapse:collapse;
+                }
+
+                th,td{
+                    border:1px solid #ccc;
+                    padding:8px;
+                    text-align:center;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            ${printContents}
+
+        </body>
+
+        </html>
+    `);
+
+    printWindow.document.close();
+
+    printWindow.print();
+
+}
 
 
     
