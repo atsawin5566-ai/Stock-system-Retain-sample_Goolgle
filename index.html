@@ -1174,17 +1174,19 @@ onkeyup="searchBorrowHistory()">
 
             <thead>
 
-                <tr>
+<tr>
 
-                    <th>Doc No</th>
-                    <th>Date</th>
-                    <th>Borrower</th>
-                    <th>Lot</th>
-                    <th>Qty</th>
-                    <th>Status</th>
-                    <th>Print</th>
+    <th>Doc No</th>
 
-                </tr>
+    <th>Date</th>
+
+    <th>Borrower</th>
+
+    <th>Status</th>
+
+    <th>Print</th>
+
+</tr>
 
             </thead>
 
@@ -2690,37 +2692,64 @@ function displayBorrowHistory(){
 
     let html = "";
 
+    const docMap = {};
+
     borrowHistoryData.forEach(item => {
 
-html += `
-<tr>
+        if(!docMap[item.DocNo]){
 
-    <td>${item.DocNo}</td>
+            docMap[item.DocNo] = {
 
-    <td>${item.DateTime}</td>
+                DocNo:item.DocNo,
 
-    <td>${item.Borrower}</td>
+                DateTime:item.DateTime,
 
-    <td>${item.Lot}</td>
+                Borrower:item.Borrower,
 
-    <td>${item.Qty}</td>
+                Status:item.Status
 
-    <td>${item.Status}</td>
+            };
 
-    <td>
+        }
 
-        <button
-        class="btn btn-primary"
-        onclick="printBorrowHistory('${item.DocNo}')">
+    });
 
-        🖨️ Print
+    Object.values(docMap)
+    .sort(
+        (a,b)=>
+        new Date(b.DateTime)
+        -
+        new Date(a.DateTime)
+    )
+    .forEach(item => {
 
-        </button>
+        html += `
 
-    </td>
+        <tr>
 
-</tr>
-`;
+            <td>${item.DocNo}</td>
+
+            <td>${item.DateTime}</td>
+
+            <td>${item.Borrower}</td>
+
+            <td>${item.Status}</td>
+
+            <td>
+
+                <button
+                class="btn btn-primary"
+                onclick="printBorrowHistory('${item.DocNo}')">
+
+                🖨️ Print
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
 
     });
 
