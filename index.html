@@ -1182,6 +1182,7 @@ onkeyup="searchBorrowHistory()">
                     <th>Lot</th>
                     <th>Qty</th>
                     <th>Status</th>
+                    <th>Print</th>
 
                 </tr>
 
@@ -2691,25 +2692,35 @@ function displayBorrowHistory(){
 
     borrowHistoryData.forEach(item => {
 
-        html += `
+html += `
+<tr>
 
-        <tr>
+    <td>${item.DocNo}</td>
 
-            <td>${item.DocNo}</td>
+    <td>${item.DateTime}</td>
 
-            <td>${item.DateTime}</td>
+    <td>${item.Borrower}</td>
 
-            <td>${item.Borrower}</td>
+    <td>${item.Lot}</td>
 
-            <td>${item.Lot}</td>
+    <td>${item.Qty}</td>
 
-            <td>${item.Qty}</td>
+    <td>${item.Status}</td>
 
-            <td>${item.Status}</td>
+    <td>
 
-        </tr>
+        <button
+        class="btn btn-primary"
+        onclick="printBorrowHistory('${item.DocNo}')">
 
-        `;
+        🖨️ Print
+
+        </button>
+
+    </td>
+
+</tr>
+`;
 
     });
 
@@ -3190,6 +3201,228 @@ function exportReturnExcel(){
     );
 
 }    
+function printBorrowHistory(docNo){
+
+    const records =
+
+    borrowHistoryData.filter(item =>
+
+        item.DocNo === docNo
+
+    );
+
+    if(records.length === 0){
+
+        alert("ไม่พบข้อมูล");
+
+        return;
+
+    }
+
+    let rows = "";
+
+    records.forEach((item,index)=>{
+
+        rows += `
+
+        <tr>
+
+            <td>${index + 1}</td>
+
+            <td>${item.Lot}</td>
+
+            <td>${item.Location}</td>
+
+            <td>${item.Qty}</td>
+
+        </tr>
+
+        `;
+
+    });
+
+    const printWindow =
+
+    window.open(
+        "",
+        "",
+        "width=900,height=700"
+    );
+
+    printWindow.document.write(`
+
+    <html>
+
+    <head>
+
+        <title>
+
+        Borrow Slip
+
+        </title>
+
+        <style>
+
+            body{
+
+                font-family:Arial;
+
+                padding:20px;
+
+            }
+
+            table{
+
+                width:100%;
+
+                border-collapse:collapse;
+
+            }
+
+            th,td{
+
+                border:1px solid #ccc;
+
+                padding:8px;
+
+                text-align:center;
+
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <h2>
+
+        ใบเบิกสินค้า
+
+        </h2>
+
+        <p>
+
+        เลขที่เอกสาร :
+
+        ${docNo}
+
+        </p>
+
+        <p>
+
+        วันที่ :
+
+        ${records[0].DateTime}
+
+        </p>
+
+        <p>
+
+        ผู้เบิก :
+
+        ${records[0].Borrower}
+
+        </p>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>No.</th>
+
+                    <th>Lot</th>
+
+                    <th>Location</th>
+
+                    <th>Qty</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${rows}
+
+            </tbody>
+
+        </table>
+
+        <br><br>
+
+        <table>
+
+            <tr>
+
+                <td align="center">
+
+                    ผู้เบิก
+
+                    <br><br><br>
+
+                    _________________
+
+                </td>
+
+                <td align="center">
+
+                    ผู้จ่าย
+
+                    <br><br><br>
+
+                    _________________
+
+                </td>
+
+                <td align="center">
+
+                    ผู้อนุมัติ
+
+                    <br><br><br>
+
+                    _________________
+
+                </td>
+
+            </tr>
+
+        </table>
+
+        <br>
+
+        <div
+        style="
+        padding:10px;
+        border:1px solid #dc2626;
+        background:#fef2f2;
+        color:#991b1b;
+        border-radius:8px;
+        ">
+
+        <strong>หมายเหตุ :</strong>
+
+        ผู้เบิกชิ้นงานออกจากพื้นที่ต้องดำเนินการส่งคืนชิ้นงาน
+        ภายใน <strong>14 วันทำการ</strong>
+
+        (อ้างอิงเอกสาร
+        <strong>CHB2000-F750</strong>)
+
+        </div>
+
+    </body>
+
+    </html>
+
+    `);
+
+    printWindow.document.close();
+
+    printWindow.print();
+
+}
     
 window.onload = async function(){
 
