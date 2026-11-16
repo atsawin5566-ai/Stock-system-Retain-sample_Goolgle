@@ -1081,7 +1081,8 @@ const API_URL =
     
 let stockData = [];
 let borrowItems = [];
-let returnItems = [];    
+let returnItems = [];  
+let borrowHistoryData = [];    
     
 let editIndex = -1;
     
@@ -1135,6 +1136,33 @@ async function loadStockFromCloud(){
     }
 
 }
+async function loadBorrowHistory(){
+
+    try{
+
+        const response =
+        await fetch(
+            API_URL +
+            "?sheet=BorrowHistory"
+        );
+
+        borrowHistoryData =
+        await response.json();
+
+        console.log(
+            "BorrowHistory",
+            borrowHistoryData
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+    
 async function deleteFromCloud(lot){
 
     await fetch(API_URL,{
@@ -2097,6 +2125,7 @@ async function borrowAll(){
         );
 
         await loadStockFromCloud();
+        await loadBorrowHistory();
 
         displayData();
 
@@ -2401,6 +2430,7 @@ async function returnAll(){
         });
 
         await loadStockFromCloud();
+        await loadBorrowHistory();
 
         displayData();
 
@@ -2451,6 +2481,8 @@ window.onload = async function(){
 
     await loadStockFromCloud();
 
+    await loadBorrowHistory();
+
     displayData();
 
     updateDashboard();
@@ -2458,6 +2490,7 @@ window.onload = async function(){
     await loadBorrowedLotCount();
 
 };
+
 
     
 </script>
