@@ -279,7 +279,13 @@ DASHBOARD
     font-weight:bold;
     color:#16a34a;
 }
-
+    
+#borrowMsg{
+    margin-top:10px;
+    font-weight:bold;
+    color:#2563eb;
+}
+    
 
 
 
@@ -833,6 +839,9 @@ onkeyup="searchStock()">
         เบิกสินค้าทั้งหมด
 
         </button>
+<div id="borrowMsg"></div>
+
+
         
 <div class="card">
 
@@ -1874,43 +1883,89 @@ async function borrowAll(){
 
     }
 
-    const borrower =
-    borrowItems[0].borrower;
-
-    const docNo =
-    "BOR-" + Date.now();
-
-    const dateTime =
-    new Date().toLocaleString("th-TH");
-
-    await borrowToCloud({
-
-        docNo: docNo,
-
-        dateTime: dateTime,
-
-        borrower: borrower,
-
-        items: borrowItems
-
-    });
-
-    await loadStockFromCloud();
-
-    displayData();
-
-    updateDashboard();
-
-    borrowItems = [];
-
-    renderBorrowTable();
-
-    alert(
-        "✅ เบิกสินค้าสำเร็จ\nเลขที่เอกสาร : "
-        + docNo
+    const borrowBtn =
+    document.querySelector(
+        'button[onclick="borrowAll()"]'
     );
 
+    borrowBtn.disabled = true;
+
+    borrowBtn.innerText =
+    "กำลังบันทึกรายการเบิก...";
+
+    document.getElementById(
+        "borrowMsg"
+    ).innerHTML =
+    "⏳ กำลังบันทึกรายการเบิก...";
+
+    try{
+
+        const borrower =
+        borrowItems[0].borrower;
+
+        const docNo =
+        "BOR-" + Date.now();
+
+        const dateTime =
+        new Date().toLocaleString("th-TH");
+
+        await borrowToCloud({
+
+            docNo: docNo,
+
+            dateTime: dateTime,
+
+            borrower: borrower,
+
+            items: borrowItems
+
+        });
+
+        await loadStockFromCloud();
+
+        displayData();
+
+        updateDashboard();
+
+        await loadBorrowedLotCount();
+
+        borrowItems = [];
+
+        renderBorrowTable();
+
+        document.getElementById(
+            "borrowMsg"
+        ).innerHTML =
+        "✅ บันทึกรายการเบิกสำเร็จ";
+
+        setTimeout(()=>{
+
+            document.getElementById(
+                "borrowMsg"
+            ).innerHTML = "";
+
+        },3000);
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById(
+            "borrowMsg"
+        ).innerHTML =
+        "❌ บันทึกรายการเบิกไม่สำเร็จ";
+
+    }finally{
+
+        borrowBtn.disabled = false;
+
+        borrowBtn.innerText =
+        "เบิกสินค้าทั้งหมด";
+
+    }
+
 }
+
     
 function removeBorrowItem(index){
 
