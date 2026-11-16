@@ -570,8 +570,61 @@ STATUS
     font-weight:600;
 
 }
+.modal{
+
+    display:none;
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:rgba(0,0,0,0.5);
+
+    z-index:9999;
+
+}
+
+.modal-content{
+
+    background:white;
+
+    width:90%;
+
+    max-width:900px;
+
+    margin:50px auto;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    max-height:80vh;
+
+    overflow:auto;
+
+}
+
+.close{
+
+    float:right;
+
+    font-size:30px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+    
     
 </style>
+   
 </head>
 
 <body>
@@ -639,8 +692,13 @@ STATUS
         <p>Borrowed Lot</p>
     </div>
 
-    <div class="stat-card overdue-return">
+    <div
+class="stat-card overdue-return"
+onclick="showOverdueReturn()"
+style="cursor:pointer;">
+
     <h2 id="overdueReturn">0</h2>
+
     <p>Overdue Return</p>
 
 </div>
@@ -2807,6 +2865,79 @@ function updateOverdueReturn(){
     overdueCount;
 
 }
+function closeOverdueModal(){
+
+    document.getElementById(
+        "overdueModal"
+    ).style.display =
+    "none";
+
+}
+function showOverdueReturn(){
+
+    const tbody =
+    document.getElementById(
+        "overdueTable"
+    );
+
+    let html = "";
+
+    const today =
+    new Date();
+
+    borrowHistoryData.forEach(item => {
+
+        if(
+
+            item.Status === "Borrowed" ||
+
+            item.Status === "Partial Return"
+
+        ){
+
+            const borrowDate =
+            new Date(item.DateTime);
+
+            const diffDays =
+            Math.floor(
+                (today - borrowDate)
+                /
+                (1000 * 60 * 60 * 24)
+            );
+
+            if(diffDays > 14){
+
+                html += `
+
+                <tr>
+
+                    <td>${item.Lot}</td>
+
+                    <td>${item.Borrower}</td>
+
+                    <td>${item.DateTime}</td>
+
+                    <td>${diffDays}</td>
+
+                </tr>
+
+                `;
+
+            }
+
+        }
+
+    });
+
+    tbody.innerHTML = html;
+
+    document.getElementById(
+        "overdueModal"
+    ).style.display =
+    "block";
+
+}
+
 
     
 window.onload = async function(){
@@ -2830,10 +2961,58 @@ window.onload = async function(){
     await loadBorrowedLotCount();
 
 };
-
     
 </script>
 
+    
+<!-- Overdue Return Popup -->
+
+<div
+id="overdueModal"
+class="modal">
+
+    <div class="modal-content">
+
+        <span
+        class="close"
+        onclick="closeOverdueModal()">
+
+        &times;
+
+        </span>
+
+        <h2>
+            🚨 Overdue Return List
+        </h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Lot</th>
+
+                    <th>Borrower</th>
+
+                    <th>Borrow Date</th>
+
+                    <th>Days Overdue</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="overdueTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+    
    
 </body>
 </html>
