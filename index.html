@@ -790,9 +790,11 @@ onclick="showPage('usersPage')">
 
     <h1>Stock Management System</h1>
 
-    <div class="user-box">
-        Atsawin
-    </div>
+<div
+id="userBox"
+class="user-box">
+
+</div>
 
     <button
     class="btn btn-danger"
@@ -3653,6 +3655,11 @@ function login(){
     }
 
     currentUser = user;
+
+document.getElementById(
+    "userBox"
+).innerHTML =
+user.username;
 
     document.getElementById(
         "loginPage"
