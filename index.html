@@ -94,7 +94,51 @@ body{
 
 }   
 
+#loginPage{
 
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:100vh;
+
+    background:#f3f4f6;
+
+}
+
+.login-box{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:15px;
+
+    width:350px;
+
+    box-shadow:
+    0 10px 25px
+    rgba(0,0,0,.15);
+
+}
+
+.login-box h2{
+
+    text-align:center;
+
+    margin-bottom:20px;
+
+}
+
+.login-box input{
+
+    width:100%;
+
+    margin-bottom:10px;
+
+}
 
     
 /* =========================
@@ -1315,6 +1359,31 @@ onkeyup="searchReturnHistory()">
     
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxrn4RAaxDg2e40cbNFHXjdfWzi3qb9v0gmyqXoixH_k6xtDQnp7SNMsCPEenTVllRm7Q/exec";
+
+const users = [
+
+    {
+        username:"admin",
+        password:"Admin123",
+        role:"admin"
+    },
+
+    {
+        username:"user",
+        password:"User123",
+        role:"user"
+    },
+
+    {
+        username:"viewer",
+        password:"Viewer123",
+        role:"viewer"
+    }
+
+];
+
+let currentUser = null;
+    
     
 let stockData = [];
 let borrowItems = [];
@@ -3508,6 +3577,63 @@ function printBorrowHistory(docNo){
     printWindow.print();
 
 }
+function login(){
+
+    const username =
+    document.getElementById(
+        "loginUser"
+    ).value.trim();
+
+    const password =
+    document.getElementById(
+        "loginPassword"
+    ).value.trim();
+
+    const user =
+    users.find(u =>
+
+        u.username === username &&
+
+        u.password === password
+
+    );
+
+    if(!user){
+
+        alert(
+            "❌ Username หรือ Password ไม่ถูกต้อง"
+        );
+
+        return;
+
+    }
+
+    currentUser = user;
+
+    document.getElementById(
+        "loginPage"
+    ).style.display = "none";
+
+    document.getElementById(
+        "mainApp"
+    ).style.display = "block";
+
+    applyRole();
+
+}
+function applyRole(){
+
+    if(currentUser.role === "viewer"){
+
+        document
+        .getElementById("saveBtn")
+        .style.display =
+        "none";
+
+    }
+
+}
+
     
 window.onload = async function(){
 
