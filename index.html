@@ -3714,14 +3714,16 @@ function login(){
         "loginPassword"
     ).value.trim();
 
-const user =
-users.find(u =>
+    console.log(users);
 
-    u.Username === username &&
+    const user =
+    users.find(u =>
 
-    u.Password === password
+        u.Username === username &&
 
-);
+        u.Password === password
+
+    );
 
     if(!user){
 
@@ -3733,28 +3735,31 @@ users.find(u =>
 
     }
 
-currentUser = {
+    currentUser = {
 
-    username:user.Username,
+        username:user.Username,
 
-    role:user.Role
+        role:user.Role
 
-};
+    };
 
-document.getElementById(
-    "userBox"
-).innerHTML =
-user.Username;
+    document.getElementById(
+        "userBox"
+    ).innerHTML =
+    user.Username;
 
     document.getElementById(
         "loginPage"
-    ).style.display = "none";
+    ).style.display =
+    "none";
 
     document.getElementById(
         "mainApp"
-    ).style.display = "block";
+    ).style.display =
+    "block";
 
     applyRole();
+
     displayUsers();
 
 }
