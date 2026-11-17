@@ -1470,27 +1470,7 @@ onkeyup="searchReturnHistory()">
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxrn4RAaxDg2e40cbNFHXjdfWzi3qb9v0gmyqXoixH_k6xtDQnp7SNMsCPEenTVllRm7Q/exec";
 
-const users = [
-
-    {
-        username:"admin",
-        password:"Admin123",
-        role:"admin"
-    },
-
-    {
-        username:"user",
-        password:"User123",
-        role:"user"
-    },
-
-    {
-        username:"viewer",
-        password:"Viewer123",
-        role:"viewer"
-    }
-
-];
+let users = [];
 
 let currentUser = null;
     
@@ -1742,6 +1722,32 @@ async function loadBorrowedLotCount(){
     }
 
 }
+async function loadUsers(){
+
+    try{
+
+        const response =
+        await fetch(
+            API_URL +
+            "?sheet=Users"
+        );
+
+        users =
+        await response.json();
+
+        console.log(
+            "Users",
+            users
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
     
 /* =========================
 ADD ITEM
@@ -3975,6 +3981,8 @@ window.onload = async function(){
     await loadBorrowHistory();
 
     await loadReturnHistory();
+
+    await loadUsers();
 
     displayData();
 
