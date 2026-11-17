@@ -3674,12 +3674,79 @@ user.username;
 }
 function applyRole(){
 
+    // แสดงทุกเมนูก่อน
+
+    document.getElementById(
+        "menuDashboard"
+    ).style.display = "";
+
+    document.getElementById(
+        "menuStock"
+    ).style.display = "";
+
+    document.getElementById(
+        "menuBorrow"
+    ).style.display = "";
+
+    document.getElementById(
+        "menuReturn"
+    ).style.display = "";
+
+    document.getElementById(
+        "menuHistory"
+    ).style.display = "";
+
+    document.getElementById(
+        "menuUsers"
+    ).style.display = "";
+
+    // ADMIN
+
+    if(currentUser.role === "admin"){
+
+        return;
+
+    }
+
+    // USER
+
+    if(currentUser.role === "user"){
+
+        document.getElementById(
+            "menuUsers"
+        ).style.display = "none";
+
+        return;
+
+    }
+
+    // VIEWER
+
     if(currentUser.role === "viewer"){
 
-        document
-        .getElementById("saveBtn")
-        .style.display =
-        "none";
+        document.getElementById(
+            "menuBorrow"
+        ).style.display = "none";
+
+        document.getElementById(
+            "menuReturn"
+        ).style.display = "none";
+
+        document.getElementById(
+            "menuUsers"
+        ).style.display = "none";
+
+        const saveBtn =
+        document.getElementById(
+            "saveBtn"
+        );
+
+        if(saveBtn){
+
+            saveBtn.style.display =
+            "none";
+
+        }
 
     }
 
