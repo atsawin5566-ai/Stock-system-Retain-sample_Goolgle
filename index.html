@@ -750,15 +750,23 @@ STATUS
 
 <div class="main">
 
-    <div class="header">
+<div class="header">
 
-        <h1>Stock Management System</h1>
+    <h1>Stock Management System</h1>
 
-        <div class="user-box">
-            Atsawin
-        </div>
-
+    <div class="user-box">
+        Atsawin
     </div>
+
+    <button
+    class="btn btn-danger"
+    onclick="logout()">
+
+    🚪 Logout
+
+    </button>
+
+</div>
 
 
     <div id="dashboardPage" class="page active">
@@ -3633,7 +3641,33 @@ function applyRole(){
     }
 
 }
+function logout(){
 
+    if(!confirm(
+        "ต้องการออกจากระบบหรือไม่ ?"
+    )){
+        return;
+    }
+
+    currentUser = null;
+
+    document.getElementById(
+        "mainApp"
+    ).style.display = "none";
+
+    document.getElementById(
+        "loginPage"
+    ).style.display = "flex";
+
+    document.getElementById(
+        "loginUser"
+    ).value = "";
+
+    document.getElementById(
+        "loginPassword"
+    ).value = "";
+
+}
     
 window.onload = async function(){
 
