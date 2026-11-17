@@ -4023,7 +4023,76 @@ async function addUserToCloud(data){
     }
 
 }
+async function deleteUserFromCloud(username){
 
+    try{
+
+        const response =
+        await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify({
+
+                action:"deleteUser",
+
+                username:username
+
+            })
+
+        });
+
+        return await response.json();
+
+    }catch(error){
+
+        console.error(error);
+
+        throw error;
+
+    }
+
+}
+async function deleteUser(index){
+
+    const user =
+    users[index];
+
+    if(
+        !confirm(
+            "ลบ User : " +
+            user.Username +
+            " ?"
+        )
+    ){
+        return;
+    }
+
+    if(user.Username === "admin"){
+
+        alert(
+            "❌ ไม่สามารถลบ admin ได้"
+        );
+
+        return;
+
+    }
+
+    await deleteUserFromCloud(
+        user.Username
+    );
+
+    await loadUsers();
+
+    displayUsers();
+
+    alert(
+        "✅ ลบ User สำเร็จ"
+    );
+
+}
+
+    
     
 window.onload = async function(){
 
