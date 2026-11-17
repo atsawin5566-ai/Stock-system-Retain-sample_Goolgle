@@ -3714,14 +3714,14 @@ function login(){
         "loginPassword"
     ).value.trim();
 
-    const user =
-    users.find(u =>
+const user =
+users.find(u =>
 
-        u.username === username &&
+    u.Username === username &&
 
-        u.password === password
+    u.Password === password
 
-    );
+);
 
     if(!user){
 
@@ -3733,12 +3733,18 @@ function login(){
 
     }
 
-    currentUser = user;
+currentUser = {
+
+    username:user.Username,
+
+    role:user.Role
+
+};
 
 document.getElementById(
     "userBox"
 ).innerHTML =
-user.username;
+user.Username;
 
     document.getElementById(
         "loginPage"
