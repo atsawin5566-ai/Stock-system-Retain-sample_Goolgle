@@ -1946,9 +1946,14 @@ const sortedData =
     )
 );
 
-    sortedData.forEach((item,index)=>{
+   sortedData.forEach((item,index)=>{
 
-        tbody.innerHTML += `
+    const canEdit =
+
+    currentUser &&
+    currentUser.role !== "viewer";
+
+    tbody.innerHTML += `
 
         <tr>
 
@@ -1970,25 +1975,29 @@ const sortedData =
                 ${getItemStatus(item)}
             </td>
 
-            <td>
+<td>
 
-                <button
-                class="btn btn-primary"
-                onclick="editItem(${item.originalIndex})">
+${canEdit ? `
 
-                Edit
+    <button
+    class="btn btn-primary"
+    onclick="editItem(${item.originalIndex})">
 
-                </button>
+    Edit
 
-                <button
-                class="btn btn-danger"
-                onclick="deleteItem(${item.originalIndex})">
+    </button>
 
-                Delete
+    <button
+    class="btn btn-danger"
+    onclick="deleteItem(${item.originalIndex})">
 
-                </button>
+    Delete
 
-            </td>
+    </button>
+
+` : '-'}
+
+</td>
 
         </tr>
 
