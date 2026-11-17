@@ -3937,7 +3937,35 @@ function addUser(){
 
     }
 
-    users.push({
+async function addUser(){
+
+    const username =
+    document.getElementById(
+        "newUsername"
+    ).value.trim();
+
+    const password =
+    document.getElementById(
+        "newPassword"
+    ).value.trim();
+
+    const role =
+    document.getElementById(
+        "newRole"
+    ).value;
+
+    if(!username || !password){
+
+        alert(
+            "กรุณากรอกข้อมูล"
+        );
+
+        return;
+
+    }
+
+    const result =
+    await addUserToCloud({
 
         username,
 
@@ -3946,6 +3974,34 @@ function addUser(){
         role
 
     });
+
+    if(result.success === false){
+
+        alert(
+            "Username นี้มีอยู่แล้ว"
+        );
+
+        return;
+
+    }
+
+    await loadUsers();
+
+    displayUsers();
+
+    document.getElementById(
+        "newUsername"
+    ).value = "";
+
+    document.getElementById(
+        "newPassword"
+    ).value = "";
+
+    alert(
+        "✅ เพิ่ม User สำเร็จ"
+    );
+
+}
 
     displayUsers();
 
@@ -3977,7 +4033,36 @@ function deleteUser(index){
     displayUsers();
 
 }
+async function addUserToCloud(data){
 
+    try{
+
+        const response =
+        await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify({
+
+                action:"addUser",
+
+                ...data
+
+            })
+
+        });
+
+        return await response.json();
+
+    }catch(error){
+
+        console.error(error);
+
+        throw error;
+
+    }
+
+}
 
     
 window.onload = async function(){
