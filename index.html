@@ -653,7 +653,39 @@ STATUS
 
 <body>
 
-<div class="sidebar">
+<div id="loginPage">
+
+    <div class="login-box">
+
+        <h2>🔐 Login</h2>
+
+        <input
+        id="loginUser"
+        type="text"
+        placeholder="Username">
+
+        <input
+        id="loginPassword"
+        type="password"
+        placeholder="Password">
+
+        <button
+        class="btn btn-primary"
+        onclick="login()">
+
+        Login
+
+        </button>
+
+    </div>
+
+</div>
+
+<div id="mainApp" style="display:none;">
+
+    <div class="sidebar">
+
+      
 
     <div class="logo">
         📦 Stock System
@@ -3635,7 +3667,7 @@ class="modal">
     </div>
 
 </div>
-        
+</div>        
    
 </body>
 </html>
