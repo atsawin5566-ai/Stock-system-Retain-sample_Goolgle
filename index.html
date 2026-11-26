@@ -2026,6 +2026,16 @@ currentUser &&
     currentUser.role === "user"
 );
 
+console.log(
+    "currentUser =",
+    currentUser
+);
+
+console.log(
+    "canEdit =",
+    canEdit
+);
+
     tbody.innerHTML += `
 
         <tr>
@@ -3764,6 +3774,8 @@ function login(){
     applyRole();
 
     displayUsers();
+
+    displayData();
 
 }
 function applyRole(){
