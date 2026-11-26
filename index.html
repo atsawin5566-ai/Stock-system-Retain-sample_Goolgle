@@ -2018,10 +2018,13 @@ const sortedData =
 
    sortedData.forEach((item,index)=>{
 
-    const canEdit =
+const canEdit =
 
-    currentUser &&
-    currentUser.role !== "viewer";
+currentUser &&
+(
+    currentUser.role === "admin" ||
+    currentUser.role === "user"
+);
 
     tbody.innerHTML += `
 
@@ -2049,21 +2052,21 @@ const sortedData =
 
 ${canEdit ? `
 
-    <button
-    class="btn btn-primary"
-    onclick="editItem(${item.originalIndex})">
+<button
+class="btn btn-primary"
+onclick="editItem(${item.originalIndex})">
 
-    Edit
+Edit
 
-    </button>
+</button>
 
-    <button
-    class="btn btn-danger"
-    onclick="deleteItem(${item.originalIndex})">
+<button
+class="btn btn-danger"
+onclick="deleteItem(${item.originalIndex})">
 
-    Delete
+Delete
 
-    </button>
+</button>
 
 ` : '-'}
 
